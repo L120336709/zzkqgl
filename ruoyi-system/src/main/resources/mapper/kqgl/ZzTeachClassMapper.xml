@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzTeachClassMapper">
+    
+    <resultMap type="ZzTeachClass" id="ZzTeachClassResult">
+        <result property="id"    column="id"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="classId"    column="class_id"    />
+        <result property="className"    column="class_name"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createPeople"    column="create_people"    />
+    </resultMap>
+
+    <sql id="selectZzTeachClassVo">
+        select id, teacher_id,teacher_name, class_id, class_name,create_time, create_people from zz_teach_class
+    </sql>
+
+    <select id="selectZzTeachClassList" parameterType="ZzTeachClass" resultMap="ZzTeachClassResult">
+        <include refid="selectZzTeachClassVo"/>
+        <where>  
+            <if test="teacherId != null  and teacherId != ''"> and teacher_id = #{teacherId}</if>
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="classId != null  and classId != ''"> and class_id = #{classId}</if>
+            <if test="className != null  and className != ''"> and class_name like concat('%', #{className}, '%')</if>
+            <if test="createPeople != null  and createPeople != ''"> and create_people = #{createPeople}</if>
+        </where>
+    </select>
+    
+    <select id="selectZzTeachClassById" parameterType="Long" resultMap="ZzTeachClassResult">
+        <include refid="selectZzTeachClassVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZzTeachClass" parameterType="ZzTeachClass" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_teach_class
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="teacherName != null">teacher_name,</if>
+            <if test="classId != null">class_id,</if>
+            <if test="className != null">class_name,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createPeople != null">create_people,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="teacherName != null">#{teacherName},</if>
+            <if test="classId != null">#{classId},</if>
+            <if test="className != null">#{className},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createPeople != null">#{createPeople},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZzTeachClass" parameterType="ZzTeachClass">
+        update zz_teach_class
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="teacherName != null">teacher_name = #{teacherName},</if>
+
+            <if test="classId != null">class_id = #{classId},</if>
+            <if test="className != null">class_name = #{className},</if>
+
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createPeople != null">create_people = #{createPeople},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteZzTeachClassById" parameterType="Long">
+        delete from zz_teach_class where id = #{id}
+    </delete>
+
+    <delete id="deleteZzTeachClassByIds" parameterType="String">
+        delete from zz_teach_class where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

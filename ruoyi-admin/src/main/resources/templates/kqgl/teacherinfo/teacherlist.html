@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('教师信息表列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+<!--                            <li>-->
+<!--                                <label>用户账号：</label>-->
+<!--                                <input type="text" name="userNo"/>-->
+<!--                            </li>-->
+                            <li>
+                                <label>姓名：</label>
+                                <input type="text" name="personName"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+<!--                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="kqgl:teacherinfo:add">-->
+<!--                    <i class="fa fa-plus"></i> 添加-->
+<!--                </a>-->
+<!--                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="kqgl:teacherinfo:edit">-->
+<!--                    <i class="fa fa-edit"></i> 修改-->
+<!--                </a>-->
+<!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="kqgl:teacherinfo:remove">-->
+<!--                    <i class="fa fa-remove"></i> 删除-->
+<!--                </a>-->
+<!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="kqgl:teacherinfo:export">-->
+<!--                    <i class="fa fa-download"></i> 导出-->
+<!--                </a>-->
+<!--                <a class="btn btn-warning" onclick="TongBu()" >-->
+<!--                    <i class="fa fa-download"></i> 同步教职工数据-->
+<!--                </a>-->
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('kqgl:teacherinfo:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('kqgl:teacherinfo:remove')}]];
+        var idDatas = [[${@dict.getType('${column.dictType}')}]];
+        var prefix = ctx + "kqgl/teacherinfo";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "教师信息表",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: ''
+                },
+                {
+                    field: 'userId',
+                    title: '用户id',
+                    visible: false
+                },
+                {
+                    field: 'userNo',
+                    title: '用户账号',
+                    sortable: true
+                },
+                {
+                    field: 'state',
+                    title: '账号状态',
+                    sortable: true,
+                    formatter: function(value, row, index) {
+                        if (value == 1) {
+                            return '正常';
+                        } else if (value == 0) {
+                            return '已禁用';
+                        }
+                    }
+                },
+                {
+                    field: 'personName',
+                    title: '姓名',
+                    sortable: true
+                },
+                {
+                    field: 'gender',
+                    title: '性别',
+                    sortable: true,
+                    formatter: function(value, row, index) {
+                        if (value == 1) {
+                            return '男';
+                        } else if (value == 2) {
+                            return '女';
+                        }
+                    }
+                },
+
+                {
+                    field: 'idcard',
+                    title: '身份证号',
+                    sortable: true
+                },
+
+                {
+                    field: 'orgIdentityid',
+                    title: '用户类型',
+                    sortable: true,
+                    formatter: function(value, row, index) {
+                        if (value == 101) {
+                            return '教师';
+                        } else if (value == 106) {
+                            return '教育局员工';
+                        }
+                    }
+                },
+                {
+                    field: 'orgState',
+                    title: '所在学校状态',
+                    sortable: true,
+                    formatter: function(value, row, index) {
+                        if (value == 1) {
+                            return '在校';
+                        } else if (value == 0) {
+                            return '不在校';
+                        }
+                    }
+                }
+                // ,
+                // {
+                //     title: '操作',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         var actions = [];
+                //         actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                //         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                //         return actions.join('');
+                //     }
+                // }
+                ]
+            };
+            $.table.init(options);
+        });
+    </script>
+     <script>
+
+
+         function TongBu() {
+
+             var trList = document.getElementById("bootstrap-table");
+
+             var rows = trList.rows;//获取所有行
+             var className="1";
+             var teacherName="0"
+             var num=0;
+             for(var i=1; i < rows.length; i++){
+                 var classname = rows[i].className;
+
+                 if(classname  == "selected"){
+                     num=num+1;
+                     className=rows[i].cells[1].innerText
+                     teacherName=rows[i].cells[4].innerText
+                 }
+             }
+
+             return num+'|'+className+'|'+teacherName;
+         }
+
+     </script>
+</body>
+</html>

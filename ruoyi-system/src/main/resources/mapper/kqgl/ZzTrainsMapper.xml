@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzTrainsMapper">
+    
+    <resultMap type="ZzTrains" id="ZzTrainsResult">
+        <result property="id"    column="id"    />
+        <result property="jobid"    column="jobid"    />
+        <result property="tname"    column="tname"    />
+        <result property="gender"    column="gender"    />
+        <result property="age"    column="age"    />
+        <result property="birth"    column="birth"    />
+        <result property="major"    column="major"    />
+        <result property="majorbu"    column="majorbu"    />
+        <result property="trainTitle"    column="train_title"    />
+        <result property="trainContent"    column="train_content"    />
+        <result property="trainTime"    column="train_time"    />
+        <result property="trainLocation"    column="train_location"    />
+        <result property="trainLevel"    column="train_level"    />
+        <result property="completion"    column="completion"    />
+        <result property="drtime"    column="drtime"    />
+        <result property="gxtime"    column="gxtime"    />
+        <result property="peoples"    column="peoples"    />
+    </resultMap>
+
+    <sql id="selectZzTrainsVo">
+        select id, jobid, tname, gender, age, birth, major, majorbu, train_title, train_content, train_time, train_location, train_level, completion, drtime, gxtime, peoples from zz_trains
+    </sql>
+
+    <select id="selectZzTrainsList" parameterType="ZzTrains" resultMap="ZzTrainsResult">
+        <include refid="selectZzTrainsVo"/>
+        <where>  
+            <if test="jobid != null  and jobid != ''"> and jobid = #{jobid}</if>
+            <if test="tname != null  and tname != ''"> and tname like concat('%', #{tname}, '%')</if>
+            <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
+            <if test="age != null "> and age = #{age}</if>
+            <if test="birth != null  and birth != ''"> and birth = #{birth}</if>
+            <if test="major != null  and major != ''"> and major = #{major}</if>
+            <if test="majorbu != null  and majorbu != ''"> and majorbu = #{majorbu}</if>
+            <if test="trainTitle != null  and trainTitle != ''"> and train_title like concat('%', #{trainTitle}, '%')  </if>
+            <if test="trainContent != null  and trainContent != ''"> and train_content like concat('%', #{trainContent}, '%')   </if>
+            <if test="trainTime != null  and trainTime != ''"> and train_time like concat('%', #{trainTime}, '%')  </if>
+            <if test="trainLocation != null  and trainLocation != ''"> and train_location like concat('%', #{trainLocation}, '%')  </if>
+            <if test="trainLevel != null  and trainLevel != ''"> and train_level like concat('%', #{trainLevel}, '%')  </if>
+            <if test="completion != null  and completion != ''"> and completion like concat('%', #{completion}, '%')  </if>
+            <if test="drtime != null "> and drtime = #{drtime}</if>
+            <if test="gxtime != null "> and gxtime = #{gxtime}</if>
+            <if test="peoples != null  and peoples != ''"> and peoples = #{peoples}</if>
+        </where>
+    </select>
+    
+    <select id="selectZzTrainsById" parameterType="Long" resultMap="ZzTrainsResult">
+        <include refid="selectZzTrainsVo"/>
+        where id = #{id}
+    </select>
+
+
+
+    <!--批量查找数据 -->
+    <select id="findZzTrainsByIdnumberList" parameterType="java.util.ArrayList" resultMap="ZzTrainsResult">
+        <include refid="selectZzTrainsVo"/>
+        <where>
+            jobid in (
+            <foreach collection="list"  item="jobid" index="index" separator=",">
+                #{jobid}
+            </foreach>
+            )
+        </where>
+    </select>
+
+    <!--批量插入数据 -->
+    <insert id="insertZzTrainsList"  >
+        insert into zz_trains ( id, jobid, tname, gender, age, birth, major, majorbu, train_title, train_content, train_time,
+        train_location, train_level, completion, drtime, gxtime, peoples )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id  }, #{item.jobid }, #{item.tname }, #{item.gender }, #{item.age }, #{item.birth }, #{item.major }, #{item.majorbu},
+             #{item.trainTitle }, #{item.trainContent }, #{item.trainTime},
+            #{item.trainLocation }, #{item.trainLevel }, #{item.completion }, #{item.drtime }, #{item.gxtime }, #{item.peoples})
+        </foreach>
+    </insert>
+
+
+
+    <!--批量更新数据 -->
+    <update id="updateZzTrainsList" parameterType="java.util.List">
+        update zz_trains set
+
+        jobid=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.jobid,jdbcType=VARCHAR}
+        </foreach>
+        , tname=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.tname,jdbcType=VARCHAR}
+        </foreach>
+        , gender=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gender,jdbcType=VARCHAR}
+        </foreach>
+        , age=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.age,jdbcType=VARCHAR}
+        </foreach>
+        , birth=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.birth,jdbcType=VARCHAR}
+        </foreach>
+        , major=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.major,jdbcType=VARCHAR}
+        </foreach>
+        , majorbu=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.majorbu,jdbcType=VARCHAR}
+        </foreach>
+        , train_title=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.trainTitle,jdbcType=VARCHAR}
+        </foreach>
+        , train_content=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.trainContent,jdbcType=VARCHAR}
+        </foreach>
+        , train_time=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.trainTime,jdbcType=VARCHAR}
+        </foreach>
+        ,
+        train_location=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.trainLocation,jdbcType=VARCHAR}
+        </foreach>
+        , train_level=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.trainLevel,jdbcType=VARCHAR}
+        </foreach>
+        , completion=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.completion,jdbcType=VARCHAR}
+        </foreach>
+        , drtime=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.drtime,jdbcType=VARCHAR}
+        </foreach>
+        , gxtime=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gxtime,jdbcType=VARCHAR}
+        </foreach>
+        , peoples=
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.peoples,jdbcType=VARCHAR}
+        </foreach>
+
+
+
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=DECIMAL}
+        </foreach>
+    </update>
+
+    <insert id="insertZzTrains" parameterType="ZzTrains" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_trains
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="jobid != null">jobid,</if>
+            <if test="tname != null">tname,</if>
+            <if test="gender != null">gender,</if>
+            <if test="age != null">age,</if>
+            <if test="birth != null">birth,</if>
+            <if test="major != null">major,</if>
+            <if test="majorbu != null">majorbu,</if>
+            <if test="trainTitle != null">train_title,</if>
+            <if test="trainContent != null">train_content,</if>
+            <if test="trainTime != null">train_time,</if>
+            <if test="trainLocation != null">train_location,</if>
+            <if test="trainLevel != null">train_level,</if>
+            <if test="completion != null">completion,</if>
+            <if test="drtime != null">drtime,</if>
+            <if test="gxtime != null">gxtime,</if>
+            <if test="peoples != null">peoples,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="jobid != null">#{jobid},</if>
+            <if test="tname != null">#{tname},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="age != null">#{age},</if>
+            <if test="birth != null">#{birth},</if>
+            <if test="major != null">#{major},</if>
+            <if test="majorbu != null">#{majorbu},</if>
+            <if test="trainTitle != null">#{trainTitle},</if>
+            <if test="trainContent != null">#{trainContent},</if>
+            <if test="trainTime != null">#{trainTime},</if>
+            <if test="trainLocation != null">#{trainLocation},</if>
+            <if test="trainLevel != null">#{trainLevel},</if>
+            <if test="completion != null">#{completion},</if>
+            <if test="drtime != null">#{drtime},</if>
+            <if test="gxtime != null">#{gxtime},</if>
+            <if test="peoples != null">#{peoples},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZzTrains" parameterType="ZzTrains">
+        update zz_trains
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="jobid != null">jobid = #{jobid},</if>
+            <if test="tname != null">tname = #{tname},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="birth != null">birth = #{birth},</if>
+            <if test="major != null">major = #{major},</if>
+            <if test="majorbu != null">majorbu = #{majorbu},</if>
+            <if test="trainTitle != null">train_title = #{trainTitle},</if>
+            <if test="trainContent != null">train_content = #{trainContent},</if>
+            <if test="trainTime != null">train_time = #{trainTime},</if>
+            <if test="trainLocation != null">train_location = #{trainLocation},</if>
+            <if test="trainLevel != null">train_level = #{trainLevel},</if>
+            <if test="completion != null">completion = #{completion},</if>
+            <if test="drtime != null">drtime = #{drtime},</if>
+            <if test="gxtime != null">gxtime = #{gxtime},</if>
+            <if test="peoples != null">peoples = #{peoples},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteZzTrainsById" parameterType="Long">
+        delete from zz_trains where id = #{id}
+    </delete>
+
+    <delete id="deleteZzTrainsByIds" parameterType="String">
+        delete from zz_trains where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

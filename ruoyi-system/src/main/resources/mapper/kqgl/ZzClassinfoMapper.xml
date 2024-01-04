@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzClassinfoMapper">
+    
+    <resultMap type="ZzClassinfo" id="ZzClassinfoResult">
+        <result property="id"    column="id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="classCode"    column="class_code"    />
+        <result property="className"    column="class_name"    />
+        <result property="classNickname"    column="class_nickname"    />
+        <result property="classLevel"    column="class_level"    />
+        <result property="gradeId"    column="grade_id"    />
+        <result property="gradeCode"    column="grade_code"    />
+        <result property="gradeName"    column="grade_name"    />
+        <result property="schoolId"    column="school_id"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectZzClassinfoVo">
+        select id, class_id, class_code, class_name, class_nickname, class_level, grade_id, grade_code, grade_name, school_id, status from zz_classinfo
+    </sql>
+
+    <select id="selectZzClassinfoList" parameterType="ZzClassinfo" resultMap="ZzClassinfoResult">
+        <include refid="selectZzClassinfoVo"/>
+        <where>
+            <if test="classId != null  and classId != ''"> and class_id = #{classId}</if>
+            <if test="classCode != null  and classCode != ''"> and class_code = #{classCode}</if>
+            <if test="className != null  and className != ''"> and class_name like concat('%', #{className}, '%')</if>
+            <if test="classNickname != null  and classNickname != ''"> and class_nickname like concat('%', #{classNickname}, '%')</if>
+            <if test="classLevel != null  and classLevel != ''"> and class_level = #{classLevel}</if>
+            <if test="gradeId != null  and gradeId != ''"> and grade_id = #{gradeId}</if>
+            <if test="gradeCode != null  and gradeCode != ''"> and grade_code = #{gradeCode}</if>
+            <if test="gradeName != null  and gradeName != ''"> and grade_name like concat('%', #{gradeName}, '%')</if>
+            <if test="schoolId != null  and schoolId != ''"> and school_id = #{schoolId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectZzClassinfoById" parameterType="Long" resultMap="ZzClassinfoResult">
+        <include refid="selectZzClassinfoVo"/>
+        where id = #{id}
+    </select>
+
+    <!--批量查找数据 -->
+    <select id="findByIdnumberList" parameterType="java.util.ArrayList" resultMap="ZzClassinfoResult">
+        <include refid="selectZzClassinfoVo"/>
+        <where>
+            class_nickname in (
+            <foreach collection="list"  item="classNickname" index="index" separator=",">
+                #{classNickname}
+            </foreach>
+            )
+        </where>
+    </select>
+    <!--批量插入数据 -->
+    <insert id="insertZzClassinfoList"  >
+        insert into zz_classinfo (id, class_id, class_code, class_name, class_nickname,
+        class_level, grade_id, grade_code, grade_name, school_id, status )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},#{item.classId},#{item.classCode},#{item.className},#{item.classNickname},#{item.classLevel},
+            #{item.gradeId},#{item.gradeCode},#{item.gradeName},#{item.schoolId},#{item.status})
+        </foreach>
+    </insert>
+
+
+    <!--批量更新数据 -->
+    <update id="updateZzClassinfoList" parameterType="java.util.List">
+        update zz_classinfo set
+        class_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classId,jdbcType=VARCHAR}
+        </foreach>
+        ,class_code =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classCode,jdbcType=VARCHAR}
+        </foreach>
+        ,class_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.className,jdbcType=VARCHAR}
+        </foreach>
+        ,class_nickname =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classNickname,jdbcType=VARCHAR}
+        </foreach>
+        ,class_level =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classLevel,jdbcType=VARCHAR}
+        </foreach>
+        ,grade_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeId,jdbcType=VARCHAR}
+        </foreach>
+
+        ,grade_code =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeCode,jdbcType=VARCHAR}
+        </foreach>
+        ,grade_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeName,jdbcType=VARCHAR}
+        </foreach>
+
+        ,school_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.schoolId,jdbcType=VARCHAR}
+        </foreach>
+        ,status =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.status,jdbcType=VARCHAR}
+        </foreach>
+
+
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=DECIMAL}
+        </foreach>
+    </update>
+
+
+    <insert id="insertZzClassinfo" parameterType="ZzClassinfo" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_classinfo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="classId != null">class_id,</if>
+            <if test="classCode != null">class_code,</if>
+            <if test="className != null">class_name,</if>
+            <if test="classNickname != null">class_nickname,</if>
+            <if test="classLevel != null">class_level,</if>
+            <if test="gradeId != null">grade_id,</if>
+            <if test="gradeCode != null">grade_code,</if>
+            <if test="gradeName != null">grade_name,</if>
+            <if test="schoolId != null">school_id,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="classId != null">#{classId},</if>
+            <if test="classCode != null">#{classCode},</if>
+            <if test="className != null">#{className},</if>
+            <if test="classNickname != null">#{classNickname},</if>
+            <if test="classLevel != null">#{classLevel},</if>
+            <if test="gradeId != null">#{gradeId},</if>
+            <if test="gradeCode != null">#{gradeCode},</if>
+            <if test="gradeName != null">#{gradeName},</if>
+            <if test="schoolId != null">#{schoolId},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZzClassinfo" parameterType="ZzClassinfo">
+        update zz_classinfo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="classId != null">class_id = #{classId},</if>
+            <if test="classCode != null">class_code = #{classCode},</if>
+            <if test="className != null">class_name = #{className},</if>
+            <if test="classNickname != null">class_nickname = #{classNickname},</if>
+            <if test="classLevel != null">class_level = #{classLevel},</if>
+            <if test="gradeId != null">grade_id = #{gradeId},</if>
+            <if test="gradeCode != null">grade_code = #{gradeCode},</if>
+            <if test="gradeName != null">grade_name = #{gradeName},</if>
+            <if test="schoolId != null">school_id = #{schoolId},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteZzClassinfoById" parameterType="Long">
+        delete from zz_classinfo where id = #{id}
+    </delete>
+
+    <delete id="deleteZzClassinfoByIds" parameterType="String">
+        delete from zz_classinfo where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+
+
+    <!--批量查找数据 -->
+    <select id="selectListByClassIds" parameterType="java.util.ArrayList" resultMap="ZzClassinfoResult">
+        <include refid="selectZzClassinfoVo"/>
+        <where>
+            class_id in (
+            <foreach collection="list"  item="classId" index="index" separator=",">
+                #{classId}
+            </foreach>
+            )
+        </where>
+    </select>
+
+    <!--批量插入数据 -->
+    <insert id="insertClassinfoList"  >
+        insert into zz_classinfo (id, class_id, class_code, class_name, class_nickname, class_level,
+        grade_id, grade_code, grade_name, school_id, status )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            ( #{item.id},#{item.classId},#{item.classCode},#{item.className},#{item.classNickname},#{item.classLevel},
+            #{item.gradeId},#{item.gradeCode},#{item.gradeName},#{item.schoolId},#{item.status})
+        </foreach>
+    </insert>
+
+    <!--批量更新数据 -->
+    <update id="updateClassinfoList" parameterType="java.util.List">
+        update zz_classinfo set
+        class_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classId,jdbcType=VARCHAR}
+        </foreach>
+        ,class_code =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classCode,jdbcType=VARCHAR}
+        </foreach>
+        ,class_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.className,jdbcType=VARCHAR}
+        </foreach>
+        ,class_nickname =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classNickname,jdbcType=VARCHAR}
+        </foreach>
+        ,class_level =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classLevel,jdbcType=VARCHAR}
+        </foreach>
+        ,grade_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeId,jdbcType=VARCHAR}
+        </foreach>
+        ,grade_code =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeCode,jdbcType=VARCHAR}
+        </foreach>
+        ,grade_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeName,jdbcType=VARCHAR}
+        </foreach>
+        ,school_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.schoolId,jdbcType=VARCHAR}
+        </foreach>
+        ,status =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.status,jdbcType=VARCHAR}
+        </foreach>
+
+
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=DECIMAL}
+        </foreach>
+    </update>
+
+</mapper>

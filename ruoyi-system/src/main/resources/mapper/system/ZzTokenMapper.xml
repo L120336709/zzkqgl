@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzTokenMapper">
+    
+    <resultMap type="ZzToken" id="ZzTokenResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="accessToken"    column="access_token"    />
+    </resultMap>
+
+    <sql id="selectZzTokenVo">
+        select id, user_id, access_token from zz_token
+    </sql>
+
+    <select id="selectZzTokenList" parameterType="ZzToken" resultMap="ZzTokenResult">
+        <include refid="selectZzTokenVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="accessToken != null  and accessToken != ''"> and access_token = #{accessToken}</if>
+        </where>
+    </select>
+    
+    <select id="selectZzTokenById" parameterType="Long" resultMap="ZzTokenResult">
+        <include refid="selectZzTokenVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZzToken" parameterType="ZzToken" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_token
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="accessToken != null">access_token,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="accessToken != null">#{accessToken},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZzToken" parameterType="ZzToken">
+        update zz_token
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="accessToken != null">access_token = #{accessToken},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteZzTokenById" parameterType="Long">
+        delete from zz_token where id = #{id}
+    </delete>
+
+    <delete id="deleteZzTokenByIds" parameterType="String">
+        delete from zz_token where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

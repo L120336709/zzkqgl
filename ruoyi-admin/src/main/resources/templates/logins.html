@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="mes" style="font-size: 16px;padding: 20px;font-weight:bold;">
+
+</div>
+<th:block th:include="include :: footer"/>
+<script>
+    ss()
+    function ss() {
+        var value = window.location.search;
+        value=decodeURIComponent(value);
+        var index=value.indexOf("userNo=")
+        var index2=value.indexOf("&accessToken=")
+        var accessToken=""
+        var username=""
+        if(index!=-1){
+            if(index2!=-1){
+                username=value.substring(index+7,index2)
+                accessToken=value.substring(index2+13)
+            }else {
+                username=value.substring(index+7)
+            }
+        }
+        $.ajax({
+            type: "post",
+            url: ctx + "loginmys",
+            data: {
+                "username": username,
+                "password": accessToken,
+                "rememberMe": "true"
+            },
+            success: function(r) {
+                if (r.code == web_status.SUCCESS) {
+                    location.href = ctx + 'index';
+                }else {
+                    document.getElementById("mes").innerText=r.msg
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('百度ECharts')"/>
+    <title>柳州地图2D</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+
+    <style type="text/css">
+        #id1 {
+
+            border: 2px solid green;
+            height: 700px;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+<div id="id1"></div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: echarts-js"/>
+<script type="text/javascript">
+    getDitu('/js/json/enshizhou.json')
+
+    function getDitu(json) {
+        $.get(json, function (lzjson) {
+            echarts.registerMap('恩施州', lzjson)
+            var chart = echarts.init(document.getElementById('id1'));
+            var option = {
+                title: {
+                    show: true,
+                    text: '恩施地图',
+                    x: 'center'
+                },
+                dataRange: {
+                    show: false,
+                    min: 0,
+                    max: 500,
+                    text: [],
+                    realtime: true,
+                    calculable: true,
+                    color: ['orangered', 'yellow', 'green']
+                },
+                backgroundColor:"#0C1F34",
+
+                tooltip: {
+                    className: "custom-tooltip-bk-box", //添加一个类名
+                    triggerOn: "mousemove", // 鼠标移动时触发
+                    axisPointer: {
+                        type: "none",
+                    },
+                    formatter: function (params, callback) {
+
+                        //"markPoint"
+                        if(params.componentType=="series"){
+                            return (
+                                // params.seriesName +
+                                "地市名称：" + params.name
+                                + "<br />学校数据：" + "恩施市学校数据"
+                            );
+                        }else {
+                            return (
+                                // params.seriesName +
+                                "学校名称：" + params.name
+                                + "<br />教师数量：" + params.value
+                                + "<br />学生数量：" + params.value
+                                + "<br />学校位置：" + params.data.coord
+                            );
+                        }
+
+
+
+                    }
+                },
+                series: [
+                    {
+                        name: '',
+                        type: 'map',
+                        map: '恩施州',
+
+                        mapLocation: {
+                            y: 60
+                        },
+                        itemStyle: {
+                            normal: {
+                                borderColor: '#FFFFFF',
+                                areaColor: {
+                                    type: "linear",
+                                    colorStops: [
+                                        {
+                                            offset: 0,
+                                            color: "#0771E2",
+                                        },
+                                    ],
+                                }
+                            },
+                            emphasis: {
+                                areaColor: {
+                                    type: "linear",
+                                    colorStops: [
+                                        {
+                                            offset: 0,
+                                            color: "#F5F727",
+                                        },
+                                    ],
+                                },
+                            }
+                        },
+                        label: {
+                            normal: {
+                                show: true, // 是否显示标签，默认不显示
+                                position: 'inside', // 标签位置，默认上方
+                                color: '#FFFFFF',
+                                fontSize: 20
+
+                            },
+                            emphasis:{
+                                color: 'black',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。开启缩放'scale'，开启平移'move'。设置成 true 为都开启
+                        zoom: 1.23, // 当前视角的缩放比例
+                        scaleLimit: { // 滚轮缩放的极限控制，默认的缩放为1
+                            min: 1,  // 最小的缩放值
+                            max: 10,  // 最大的缩放值
+                        },
+                    }
+                ],
+
+            };
+            option.series[0].markPoint = {
+                symbol: 'pin',//circle,arrow,triangle
+                symbolSize: 30,
+                data: [{
+                    name: '恩施市一中',
+                    value: '恩施市一中',
+                    coord: [ 109.486761, 30.282406]
+
+                },{
+                    name: '恩施市二中',
+                    value: '恩施市二中',
+                    coord: [ 109.586761, 30.382406]
+
+                }]
+
+            };
+
+
+            chart.on('click', function (params) {
+                if (params.name == "恩施市") {
+                    getDitu('/js/json/enshishi.json')
+                }
+                if (params.name == "利川市") {
+                    getDitu('/js/json/lichuan.json')
+                }
+                if (params.name == "建始县") {
+                    getDitu('/js/json/jianshi.json')
+                }
+                if (params.name == "板桥镇") {
+                    getDitu('/js/json/enshizhou.json')
+                }
+                if (params.name == "建南镇") {
+                    getDitu('/js/json/enshizhou.json')
+                }
+                if (params.name == "业州镇") {
+                    getDitu('/js/json/enshizhou.json')
+                }
+            })
+            chart.setOption(option);
+
+        });
+    }
+
+</script>
+</body>
+</html>

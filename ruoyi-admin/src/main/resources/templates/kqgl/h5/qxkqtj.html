@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('考勤图表')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="gray-bg">
+<header class="head">
+    <div style=" color: #2171C5;background-color: white;border-bottom: 2px solid #000;">
+        <div style="width: 100%; text-align: center ;">
+            <div style="font-size: 20px;font-weight:bold;padding: 15px 0">
+                考勤统计表
+            </div>
+        </div>
+    </div>
+    <div >
+        <button hidden class="bto1" style="width: 130px;margin: 5px 5%" id="fanhui" onclick="toKqtb()">返回</button></div>
+    <div style="padding: 10px 5%">
+        <input style="width: 31%;padding: 4px" type="text" id="startTime" placeholder="点击选择开始时间" readonly>
+        <input style="width: 31%;padding: 4px" type="text" id="endTime" placeholder="点击选择结束时间" readonly>
+        <button class="bto1" onclick="getTable(1)">查询</button>
+        <button class="bto1" id="bto2" onclick="qxkqtj()" >返回</button>
+    </div>
+</header>
+
+<div style="width: 90%;margin: 0 5%;background-color: white">
+    <table id="table" style="width: 100%;text-align: center;"
+           class="table table-bordered table-striped">
+    </table>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: echarts-js"/>
+<script type="text/javascript">
+    $(function () {
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#startTime',
+                type: 'date',
+                value: getRecentDay()
+            });
+            laydate.render({
+                elem: '#endTime',
+                type: 'date',
+                value: getRecentDay()
+            });
+        })
+
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.getElementById("fanhui").hidden=false
+            document.getElementById("bto2").hidden=true
+
+            console.log('当前在手机端');
+        } else {
+            document.getElementById("fanhui").hidden=true
+            document.getElementById("bto2").hidden=false
+            console.log('当前在PC端');
+        }
+
+    });
+
+    function qxkqtj() {
+        window.location.href="/h5/qxkqtj"
+    }
+    function toKqtb()
+    {
+        window.location.href="/h5/Kqtb"
+    }
+
+    function getRecentDay(){
+        var today = new Date();
+        var tYear = today.getFullYear();
+        var tMonth = today.getMonth();
+        var tDate = today.getDate();
+        tMonth = doHandleMonth(tMonth + 1);
+        tDate = doHandleMonth(tDate);
+        return tYear+"-"+tMonth+"-"+tDate;
+    }
+
+    function doHandleMonth(month){
+        var m = month;
+        if(month.toString().length == 1){
+            m = "0" + month;
+        }
+        return m;
+    }
+
+    function tokqgl() {
+        window.location.href="/h5/kqgl"
+    }
+
+    getTable(1)
+    function getTable(type, classId){
+        var startTime = document.getElementById("startTime").value
+        var endTime = document.getElementById("endTime").value
+        var Difference_In_Time = new Date(endTime).getTime() - new Date(startTime).getTime();
+        var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+
+        if(startTime==''&&startTime==endTime){
+            Difference_In_Days=0
+        }
+
+        $.ajax({
+            async: false,
+            type: "post",
+            url: "/kqgl/vacation/getStuByGradeAndClass",
+            data: {
+                "type": type,
+                // "sqStatus": "1",// 申请状态，1已通过
+                 "startTime": startTime,
+                 "endTime": endTime,
+                "classId":classId,
+                "status":1
+            },
+            success: function (data) {
+                var html = ""
+                console.log(data)
+                if (data.data.length > 0) {
+                    var zongji = [0,0,0,0,0,0,0,0]
+                    if(type==1){
+                        for (var i = 0; i < data.data.length; i++) {
+                            var name=data.data[i].classId.split(",")
+                            var qjtypes=[0,0,0,0,0,0]
+                            if(data.data[i].orgState.length>8){
+                               var qjtypenum=data.data[i].orgState.split(";")
+                                for(var q=0;q<qjtypes.length;q++){
+                                    qjtypes[q]= qjtypenum[q]
+                                }
+                            }
+
+                            var qjtypecolor=["","","","","",""]
+
+                            for(var q=0;q<qjtypes.length;q++){
+                                if(qjtypes[q]>0){
+                                    qjtypecolor[q]="<td style='background-color: #169BD5;color: white'>"+qjtypes[q]+"</td>"
+                                }else {
+                                    qjtypecolor[q]="<td >"+qjtypes[q]+"</td>"
+                                }
+                            }
+                            qjtype=qjtypecolor[0]+qjtypecolor[1]+qjtypecolor[2]+qjtypecolor[3]+qjtypecolor[5]+qjtypecolor[4]
+
+
+                            //qjtype="<td >"+qjtypes[0]+"</td><td>"+qjtypes[1]+"</td><td>"+qjtypes[2]+"</td><td>"+qjtypes[3]+"</td>" +
+                            //    "<td>"+qjtypes[5]+"</td>"+ "<td>"+qjtypes[4]+"</td>"
+
+
+
+                            zongji[2] = zongji[2] + Number(qjtypes[0])
+                            zongji[3] = zongji[3] + Number(qjtypes[1])
+                            zongji[4] = zongji[4] + Number(qjtypes[2])
+                            zongji[5] = zongji[5] + Number(qjtypes[3])
+                            zongji[6] = zongji[6] + Number(qjtypes[4])
+                            zongji[7] = zongji[7] + Number(qjtypes[5])
+                            var kql=(data.data[i].gender*(Number(Difference_In_Days)+1) - data.data[i].state)
+                                /(data.data[i].gender*(Number(Difference_In_Days)+1))*100
+                            html = html + "<tr><td>" + (i + 1) + "</td><td><a onclick=\"getTable(2,\'" + name[0] + "\')\">"
+                                + name[0] + "</a></td>" +
+                                "<td>" + data.data[i].gender*(Number(Difference_In_Days)+1) +"</td>" +
+                                "<td>" + (data.data[i].gender*(Number(Difference_In_Days)+1)-data.data[i].state) +"</td>" +
+                                "<td>" + data.data[i].state +"</td>" +
+                                qjtype+
+                                // "<td>" + kql.toFixed(2) +"%</td>" +
+                                "</tr>"
+                            zongji[0] = zongji[0] + Number(data.data[i].gender)
+                            zongji[1] = zongji[1] + Number(data.data[i].state)
+
+
+                        }
+                    }else {
+                        for (var i = 0; i < data.data.length; i++) {
+                            var name=data.data[i].classId.split(",")
+                            var qjtypes=[0,0,0,0,0,0]
+                            var qjtype="<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>"
+                            if(data.data[i].orgState.length>8){
+                                qjtype=data.data[i].orgState.split(";")
+                                for(var q=0;q<qjtypes.length;q++){
+                                    qjtypes[q]= qjtype[q]
+                                }
+
+                                var qjtypecolor=["","","","","",""]
+
+                                for(var q=0;q<qjtypes.length;q++){
+                                    if(qjtypes[q]>0){
+                                        qjtypecolor[q]="<td style='background-color: #169BD5;color: white'>"+qjtypes[q]+"</td>"
+                                    }else {
+                                        qjtypecolor[q]="<td >"+qjtypes[q]+"</td>"
+                                    }
+                                }
+
+                                qjtype=qjtypecolor[0]+qjtypecolor[1]+qjtypecolor[2]+qjtypecolor[3]+qjtypecolor[5]+qjtypecolor[4]
+
+
+                                // qjtype="<td>"+qjtype[0]+"</td><td>"+qjtype[1]+"</td><td>"+qjtype[2]+"</td><td>"+qjtype[3]+"</td>" +
+                                //     "<td>"+qjtype[5]+"</td>"+ "<td>"+qjtype[4]+"</td>"
+
+                            }
+
+                            zongji[2] = zongji[2] + Number(qjtypes[0])
+                            zongji[3] = zongji[3] + Number(qjtypes[1])
+                            zongji[4] = zongji[4] + Number(qjtypes[2])
+                            zongji[5] = zongji[5] + Number(qjtypes[3])
+                            zongji[6] = zongji[6] + Number(qjtypes[4])
+                            zongji[7] = zongji[7] + Number(qjtypes[5])
+                            var kql=(data.data[i].gender*(Number(Difference_In_Days)+1) - data.data[i].state)/
+                                (data.data[i].gender*(Number(Difference_In_Days)+1))*100
+                            html = html + "<tr><td>" + (i + 1) + "</td><td  ><a onclick='toKqhzb(\""+name[3]+"\")'> "
+                                + name[1]  + "</a></td>" +
+                                "<td>" + data.data[i].gender*(Number(Difference_In_Days)+1) +"</td>" +
+                                "<td>" + (data.data[i].gender*(Number(Difference_In_Days)+1)-data.data[i].state) +"</td>" +
+                                "<td>" + data.data[i].state +"</td>" +
+                                qjtype+
+                                // "<td>" + kql.toFixed(2) +"%</td>" +
+                                "</tr>"
+                            zongji[0] = zongji[0] + Number(data.data[i].gender)
+                            zongji[1] = zongji[1] + Number(data.data[i].state)
+                        }
+                    }
+                    var kqlall=((zongji[0]*(Number(Difference_In_Days)+1)-zongji[1])/(zongji[0] *(Number(Difference_In_Days)+1))* 100 ).toFixed(2);
+                    html = "<tr ><td style='width: 9%;'>序号</td>" +
+                        "<td style='width: 9%;'>年级</td>" +
+                        "<td style='width: 9%;'>总数</td>" +
+                        "<td style='width: 9%;'>实到</td>" +
+                        "<td style='width: 9%;'>未到</td>" +
+
+                        "<td style='width: 9%;'>公假</td>" +
+                        "<td style='width: 9%;'>事假</td>" +
+                        "<td style='width: 9%;'>病假</td>" +
+                        "<td style='width: 9%;'>休学</td>" +
+                        "<td style='width: 9%;'>退学</td>" +
+                        "<td style='width: 9%;'>其他</td>" +
+                        // "<td style='width: 14%;'>考勤率</td>" +
+                        "</tr>" +
+                        "<tr><td>0</td><td>总计</td><td>" + zongji[0]*(Number(Difference_In_Days)+1) + "</td>" +
+                        "<td>" + (zongji[0]*(Number(Difference_In_Days)+1)-zongji[1]) + "</td>" +
+                        "<td>" + zongji[1] + "</td>" +
+
+                        "<td>" + zongji[2] + "</td>" +
+                        "<td>" + zongji[3] + "</td>" +
+                        "<td>" + zongji[4] + "</td>" +
+                        "<td>" + zongji[5] + "</td>" +
+                        "<td>" + zongji[7] + "</td>" +
+                        "<td>" + zongji[6] + "</td>" +
+                        // "<td>" + kqlall + "%</td>" +
+                        "</tr>" + html
+                }
+                document.getElementById("table").innerHTML = html
+
+            }
+        })
+    }
+
+    function toKqhzb(classId) {
+        var startTime = document.getElementById("startTime").value
+        var endTime = document.getElementById("endTime").value
+
+        window.location.href="/h5/Kqhzb?classId="+classId+"&type=0"+"&startTime="+startTime+"&endTime="+endTime
+    }
+</script>
+<style>
+    .bto1 {
+        width: 17%;
+        margin-left: 1%;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        background-color: #169BD5;
+        color: white;
+        padding: 5px 0;
+        cursor: pointer
+    }
+
+    .down {
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: white;
+        height: 80px;
+        width: 100%;
+        border-top: 2px solid #000;
+    }
+
+</style>
+</body>
+</html>

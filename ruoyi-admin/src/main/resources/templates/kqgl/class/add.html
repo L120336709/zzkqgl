@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增教师绑定班级')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-class-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">教师：</label>
+                <div class="col-sm-8">
+                    <input  name="teacherName" id="teacherName"   class="form-control" type="text" placeholder="点击输入框选择教师"
+                             readonly onclick="showTeacher()">
+                    <input name="teacherId" id="teacherId" class="form-control" type="hidden" >
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">班级：</label>
+                <div class="col-sm-8">
+                    <input  name="className"  id="className" class="form-control" type="text" placeholder="点击输入框选择班级"
+                             readonly onclick="showClass()">
+                    <input name="classId" id="classId" class="form-control" type="hidden" >
+                </div>
+            </div>
+            <div class="form-group" hidden>
+                <label class="col-sm-3 control-label">绑定人：</label>
+                <div class="col-sm-8">
+                    <input name="createPeople" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script src="/js/kqgl/kqgl.js"></script>
+    <script th:inline="javascript">
+        var prefix = ctx + "kqgl/class"
+        $(function (){
+            var zzTeacherinfo = [[${zzTeacherinfo}]];
+
+            if(zzTeacherinfo!=null&&zzTeacherinfo!=""){
+                document.getElementById("teacherName").value=zzTeacherinfo.personName
+                document.getElementById("teacherId").value=zzTeacherinfo.id
+                document.getElementById("teacherName").onclick=""
+            }
+        });
+
+        $("#form-class-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            var teacherId=document.getElementById("teacherId").value
+            teacherId=teacherId.replace(/\s*/g,"");
+            var classId=document.getElementById("classId").value
+            classId=classId.replace(/\s*/g,"");
+            if(teacherId==""||teacherId==null){
+                layer.msg("请选择一名教师！")
+                return
+            }
+            if(classId==""||classId==null){
+                layer.msg("请选择一个班级！")
+                return
+            }
+
+            if(checkTeacher(teacherId) != 0){
+                layer.msg("当前教师已绑定班级！",{icon:2,time:2000})
+                return
+            }
+
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-class-add').serialize());
+                parent.location.reload()
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,
+          maximum-scale=1,user-scalable=0,viewport-fit=cover">
+    <meta name="author" content="text/html; charset=utf-8">
+    <title>班级考勤列表</title>
+</head>
+<body>
+
+<header class="head">
+    <div style="height: 120px; color: #2171C5;background-color: white;border-bottom: 2px solid #000;
+margin-right: 5%">
+        <div style="width: 100%; text-align: center ;">
+            <div style="font-size: 20px;font-weight:bold;padding: 15px 0">
+                学生请教申请
+            </div>
+            <div style="font-size: 14px;color: black;font-weight:bold;text-align: left;padding: 5px">
+                <div th:text="${classId}" id="classId" hidden=""></div>
+                班级：<span style="color: #7F7F7F;font-weight: 500" th:text="${className}" id="className">-</span>
+            </div>
+
+            <div style="font-size: 14px;color: black;font-weight:bold;text-align: left;padding: 5px">
+                请假数据：<span id="Vations" style="color: #2171C5;font-weight: unset">-</span>条
+                <button style="float: right;" onclick="student()">返回考勤列表</button>
+            </div>
+
+        </div>
+    </div>
+</header>
+<main style="margin-top: 120px">
+    <div class="maindiv" id="maindiv" style=" height : auto;margin-top: 150px">
+
+    </div>
+</main>
+
+<div hidden id="studentIds"  th:text="${studentIds}"></div>
+<div id="accessToken" th:text="${accessToken}"  hidden></div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script>
+    function student() {
+        var accessToken=document.getElementById("accessToken").innerText
+        window.location.href="/h5/index?accessToken="+accessToken
+    }
+
+    // $(function () {
+    //     layui.use('laydate', function () {
+    //         var laydate = layui.laydate;
+    //         laydate.render({
+    //             elem: '#start_time',
+    //             type: 'datetime',
+    //             trigger: 'click',
+    //             done: function (val) {
+    //                 document.getElementById("ss").innerText=val
+    //             }
+    //         });
+    //         laydate.render({
+    //             elem: '#end_time',
+    //             type: 'datetime',
+    //             trigger: 'click',
+    //             done: function (val) {
+    //                 var start=document.getElementById("start_time").value
+    //                 if(val!=null&&start!=null){
+    //                     gettimes(start,val)
+    //                 }
+    //             }
+    //         });
+    //     });
+    // });
+
+    getqjList()
+
+    function getids(i) {
+        document.getElementById("start_time"+i).click()
+    }
+    function getqjList() {
+        var studentIds=document.getElementById("studentIds").innerText
+        $.ajax({
+            type: "post",
+            url: "/kqgl/vacation/studentlist",
+            data: {
+                "studentIds": studentIds,
+                "sqStatus": "0",// 申请状态，0未审批的
+                "fw":"0"
+            },
+            success: function (data) {
+
+                if(data.length!=null){
+                    document.getElementById("Vations").innerText = data.length
+                }else {
+                    document.getElementById("Vations").innerText = "0"
+                }
+                if (data.length > 0) {
+                    var maindiv=""
+                    var start_time=new Array()
+                    var start_timeids=new Array()
+                    var end_time=new Array()
+                    var end_timeids=new Array()
+                    for (var i = 0; i < data.length; i++) {
+
+                        start_time.push("start_time"+i)
+                        start_timeids.push("start_timeids"+i)
+                        end_time.push("end_time"+i)
+                        end_timeids.push("end_timeids"+i)
+
+                        maindiv=maindiv+"<tr>" +
+                            "<td style='width: 20%'>" +data[i].studentName+"</td>" +
+                            "<td style='width: 60%'> " +
+                            "<div style='width: 100%;'><span style='font-size: 12px;'>开始：</span>" +
+                            "<input type=\"text\" class=\"form-control\"  style='width: 70%;height: 40%'  " +
+                            "value=\""+data[i].startTime+"\" id=\"start_time"+i+"\" placeholder=\"点击选择结束时间\" readonly></div>" +
+                            "<div style='width: 100%;'><span style='font-size: 12px;'>结束：</span><input type=\"text\" class=\"form-control\"  style='width: 70%;height: 40%'  " +
+                            "value=\""+data[i].endTime+"\" id=\"end_time"+i+"\" placeholder=\"点击选择结束时间\" readonly></div>" +
+                            "</td>" +
+                            "<td style='width: 20%'>" +
+                            "<button onclick='save(" +data[i].id+",1,\"start_time" +i+"\",\"end_time" +i+"\")' class='color_1C84C6'>批准</button>" +
+                            "<button onclick='save(" +data[i].id+",-1,\"start_time" +i+"\",\"end_time" +i+"\")' class='color_red'>驳回</button></td>" +
+                            "</tr>"
+
+                    }
+                    maindiv="<table>"+maindiv+"</table>"
+                    document.getElementById("maindiv").innerHTML=maindiv
+
+
+                    layui.use('laydate', function () {
+                        var laydate = layui.laydate;
+                        for(var i = 0; i < data.length; i++){
+                            laydate.render({
+                                elem: '#start_time'+i,
+                                type: 'datetime',
+                                trigger: 'click'
+                            });
+                            laydate.render({
+                                elem: '#end_time'+i,
+                                type: 'datetime',
+                                trigger: 'click'
+                            });
+                        }
+
+                    });
+
+                }
+            }
+        })
+    }
+    
+    function save(id,sqStatus,startTime,endTime) {
+
+        startTime=document.getElementById(startTime).value
+        endTime=document.getElementById(endTime).value
+        var starttime=new Date(startTime).getTime();
+        var endtime=new Date(endTime).getTime();
+        var data=new Date().getTime();
+        var qjStatus=null
+        if(sqStatus==1){
+            if(data<starttime){
+                qjStatus=0
+            }else if(data<endtime){
+                qjStatus=1
+            }else {
+
+            }
+        }
+
+        $.ajax({
+            type: "post",
+            url: "/kqgl/vacation/edit",
+            data: {
+                "id": id,
+                "startTime": startTime,
+                "endTime":endTime,
+                "sqStatus": sqStatus,// 申请状态，0未审批的
+                "qjStatus":qjStatus
+            },
+            success: function (data) {
+                layer.msg(data.msg,{icon:1,time:2000},function () {
+                    location.reload()
+                })
+            }
+        })
+    }
+
+</script>
+</body>
+<style>
+    table
+    {
+        border-collapse: collapse;
+        margin: 0 auto;
+        text-align: center;
+    }
+    table td, table th
+    {
+        border: 1px solid #cad9ea;
+        color: #666;
+        height: 30px;
+    }
+    table thead th
+    {
+        background-color: #CCE8EB;
+        width: 100px;
+    }
+    table tr:nth-child(odd)
+    {
+        background: #fff;
+    }
+    table tr:nth-child(even)
+    {
+        background: #F5FAFA;
+    }
+    .head {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 10%;
+    }
+
+
+    .buts {
+        padding: 10px 0 0 1%;
+        width: 100%;
+    }
+
+     button {
+        margin-left: 1%;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        background-color: #169BD5;
+        color: white;
+        padding: 3px 4px;
+        cursor: pointer
+    }
+    .color_red{
+        background-color: red;
+    }
+
+    .color_1C84C6{
+        background-color: #1C84C6;
+    }
+</style>
+</html>

@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, user-scalable=0;">
+    <title>活动统计页面</title>
+
+    <script>
+        var myteacher = {
+            title: {
+                show: true,
+                color: '#47cb60',
+                fontSize: '16px',
+                lineHeight: "25px"
+            },
+            table: {
+                header: {
+                    color: '#587fef',
+                    backgroundColor: '',
+                    show: false,
+                },
+                row: {
+                    color: '#47cb60',
+                    backgroundColor: 'transparent'
+                },
+                hover: {
+                    color: '#47cb60',
+                    backgroundColor: ''
+                }
+
+            }
+        }
+        var examechartes = {
+            title: {show: false},
+            grid: {x: 30, y: 20, y2: 35, x2: 20},
+            tooltip: {},
+            color: ["#47cb60"],
+            legend: {
+                data: ["人数"],
+                icon: "circle",
+                itemWidth: 6,
+                bottom: 5,
+                x: "center",
+                itemGap: 6,
+                textStyle: {
+                    color: "#47cb60",
+                    fontSize: 12,
+                },
+            },
+            yAxis: {
+                name: '',
+                type: "value",
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        width: 1,
+                        type: "dotted",
+                        color: "#3851b2",
+                    },
+                },
+                axisTick: {
+                    show: false,
+                },
+                axisLine: {
+                    show: false,
+                },
+                axisLabel: {
+                    textStyle: {
+                        color: "#587fef",
+                    },
+                },
+            },
+            xAxis: {
+                name: '',
+                axisTick: {
+                    show: false,
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: "#3850af",
+                    },
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        width: 1,
+                        type: "dotted",
+                        color: "#3851b2",
+                    },
+                },
+                axisLabel: {
+                    textStyle: {
+                        color: "#587fef",
+                        fontSize: 12,
+                        lineHeight: 12,
+                    },
+                    interval: 0, //显示全部
+                },
+                nameTextStyle: {
+                    width: 60,
+                },
+                type: "category",
+            },
+            series: [
+                {
+                    name: "人数",
+                    type: "bar",
+                    barWidth: 15,
+                },
+            ],
+        };
+        var terechartes = {
+            color: [
+                "#37a2da",
+                "#32c5e9",
+                "#9fe6b8",
+                "#ffdb5c",
+                "#ff9f7f",
+                "#fb7293",
+                "#e7bcf3",
+                "#8378ea",
+            ],
+            tooltip: {
+                trigger: "item",
+                // formatter: "{a} <br/>{b} : {c} ({d}%)",
+                formatter: "{b} : {c}人 ({d}%)",
+                position: ['10%', '55%'],
+            },
+            title: {
+                text: "教师年龄分布",
+                textStyle: {
+                    color: "#fff",
+                    lineHeight: 12,
+                    fontSize: 12,
+                },
+                left: "center",
+                top: 10,
+            },
+            toolbox: {
+                show: false,
+            },
+            legend: {
+                orient: "vertical",
+                bottom: "10",
+                align: "left",
+                // y: "center",
+                padding: [0, 5],
+                textStyle: {
+                    color: "#587fef",
+                    fontSize: 12,
+                    lineHeight: 12,
+                },
+                itemWidth: 11,
+                itemHeight: 11,
+
+            },
+            series: [
+                {
+                    name: "教师年龄分布",
+                    type: "pie",
+                    radius: [0, "40%"],
+                    center: ["50%", "30%"],
+                    label: {
+                        normal: {
+                            position: "inner",
+                            show: false,
+                        },
+                    },
+                },
+            ],
+        };
+        var lineechartes = {
+            title: {show: false},
+            color: ['#f8be0e', '#fe752b', '#677cff', '#47cb60'],
+            legend: {
+                bottom: 5,
+                icon: 'circle',
+                itemWidth: 6,
+                itemGap: 15,
+                textStyle: {
+                    color: '#556677',
+                    fontSize: 12,
+                },
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {type: 'cross'},
+            },
+            grid: {x: 30, y: '12%', y2: 35, x2: 35},
+            xAxis: {
+                axisTick: {show: false},
+                position: 'bottom',
+                type: 'category',
+                boundaryGap: false,
+                axisLabel: {
+                    textStyle: {color: '#707070', fontSize: 14},
+                },
+                axisLine: {
+                    show: false,
+                    lineStyle: {color: '#cccccc', type: 'dashed'},
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        width: 1,
+                        type: "dotted",
+                        color: "#3851b2",
+                    },
+                },
+            },
+            yAxis: {
+                type: 'value',
+                nameTextStyle: {
+                    color: '#707070',
+                    fontSize: 14,
+                },
+                axisLabel: {
+                    textStyle: {color: '#707070', fontSize: 14},
+                    showMaxLabel: false,
+                },
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        width: 1,
+                        type: 'dotted',
+                        color: '#3851b2',
+                    },
+                },
+                axisLine: {
+                    show: false,
+                },
+                boundaryGap: [0, 0.1],
+            },
+        }
+
+        var times=0
+        function tiem() {
+            setInterval(function () {
+                var myDate = new Date();
+                var year = myDate.getFullYear();
+                var month = myDate.getMonth() + 1;
+                var day = myDate.getDate();
+                var hour = myDate.getHours();
+                if (hour < 10) {
+                    hour = '0' + hour;
+                }
+                var minutes = myDate.getMinutes();
+                if (minutes < 10) {
+                    minutes = '0' + minutes;
+                }
+                var second = myDate.getSeconds();
+                if (second < 10) {
+                    second = '0' + second;
+                }
+                var dataval = year + '年' + month + '月' + day + '日  ' + hour + ':' + minutes + ':' + second;
+
+                document.getElementById("datava").innerHTML = dataval;
+                if(times==20){
+                    // window.location.href="http://esz-datacenter.eszedu.com/analysis/dashboard/show/95959fcd2186a5925d63/"
+                }
+                times++
+            }, 1000);
+        }
+
+        tiem();
+        sss1()
+        var dt;
+
+        function sss1() {
+            // child2.innerHTML = child1.innerHTML;
+            dt = setInterval(function () {
+                var parent = document.getElementById('parent');
+                var child1 = document.getElementById('child1');
+                var child2 = document.getElementById('child2');
+                // child2.innerHTML = child1.innerHTML;
+                if (parent.scrollTop >= child1.scrollHeight) {
+                    parent.scrollTop = 0;
+                } else {
+                    parent.scrollTop++;
+                }
+
+
+            }, 40);
+
+        }
+
+        function stopgd() {
+            clearInterval(dt);
+        }
+
+        function startgd() {
+            sss1()
+        }
+
+        var mapchartes = {
+            title: { show: false },
+            color: ["#f00", '#f0f'],
+            roam: false, //是否允许缩放
+            tooltip: {
+                trigger: "item",
+                formatter: function (params) {
+                    if (typeof params.value[2] == "undefined") {
+                        return params.name + " : " + params.value;
+                    } else {
+                        return params.name + " : " + params.value[2];
+                    }
+                },
+            },
+            visualMap: {
+                type: "piecewise",
+                pieces: [
+                    {
+                        min: 7,
+                        label: ">500",
+                    },
+                    {
+                        max: 6,
+                        min: 0,
+                        label: "无数据",
+                    },
+                ],
+                inRange: {
+                    color: ["#1182ff", "#339bff"],
+                },
+                show: false
+            },
+            geo: {
+                // map: "china",
+                // center: [109.486761, 30.282406],
+                label: {
+                    emphasis: {
+                        show: false,
+                    },
+                },
+                roam: false, //是否允许缩放
+                itemStyle: {
+                    normal: {
+                        color: "transparent", //地图背景色
+                        borderColor: "#f00", //省市边界线00fcff 516a89
+                        borderWidth: 1,
+                    },
+                    emphasis: {
+                        color: "#f00", //悬浮背景
+                    },
+                },
+                emphasis: {
+                    backgroundColor: '#f00'
+                }
+            },
+        }
+
+    </script>
+
+</head>
+<body class="dg-dashboard" dg-chart-map-urls="{ensmap:'./res/ensmap.json'}"
+      style="background-image: url('./res/images/bigdata.png');background-attachment: fixed;">
+<div>
+    <div class="ns_big_data">
+        <div class="ns_big_title">
+            <div style="float:left;margin-left: 46%">教育大数据中心</div>
+
+            <!--            <div id="qp1" style="float:right;margin-right: 29%" onmouseenter="qpx(1)"><svg t="1679014156823" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2754" width="32" height="32"><path d="M704 1024v-128h192v-192h128v320h-320z m192-808.064L215.936 896H448v128H0V576h128v232.064L808.064 128H576V0h448v448h-128V215.936zM128 320H0V0h320v128H128v192z" fill="#7D9EFF" p-id="2755"></path></svg>-->
+            <!--            </div>-->
+            <div id="qp2" style="float:left;margin-left: 150px" onclick="quanping()">
+                <svg t="1679017122213" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                     xmlns="http://www.w3.org/2000/svg" p-id="2129" width="32" height="32">
+                    <path d="M240.8 196l178.4 178.4-45.6 45.6-177.6-179.2-68 68V128h180.8l-68 68z m133.6 408.8L196 783.2 128 715.2V896h180.8l-68-68 178.4-178.4-44.8-44.8zM715.2 128l68 68-178.4 178.4 45.6 45.6 178.4-178.4 68 68V128H715.2z m-65.6 476.8l-45.6 45.6 178.4 178.4-68 68H896V715.2l-68 68-178.4-178.4z"
+                          p-id="2130" fill="#7D9EFF"></path>
+                </svg>
+            </div>
+            <!--            <div id="qp3" hidden style="float:right;margin-right: 29%" onmouseenter="qpx(3)"><svg t="1679014156823" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2754" width="32" height="32"><path d="M704 1024v-128h192v-192h128v320h-320z m192-808.064L215.936 896H448v128H0V576h128v232.064L808.064 128H576V0h448v448h-128V215.936zM128 320H0V0h320v128H128v192z" fill="#7D9EFF" p-id="2755"></path></svg>-->
+            <!--            </div>-->
+            <div id="qp4" hidden style="float:left;margin-left: 150px" onclick="tcqp()">
+                <svg t="1679017222001" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                     xmlns="http://www.w3.org/2000/svg" p-id="4421" id="mx_n_1679017222002" width="32" height="32">
+                    <path d="M142.4 96.8l-44.8 44.8 173.6 174.4-68 68H384V203.2l-67.2 67.2zM752.8 316l173.6-174.4-44.8-44.8-174.4 173.6-67.2-67.2V384h180.8zM270.4 707.2l-169.6 170.4 44.8 49.6 170.4-174.4 68 68V640H203.2zM820.8 640H640v180.8l68-68 170.4 174.4 44.8-49.6-169.6-170.4z"
+                          p-id="4422" fill="#7D9EFF"></path>
+                </svg>
+            </div>
+        </div>
+        <div style="padding: 20px 1%">
+            <div style="width: 30%;height:250px;min-width: 300px;float: left; margin: 0 0.3% ;">
+
+                <div style="width: 96%; height:250px;padding:2%; border: 1px solid #273491">
+                    <span data-id='1' class="ns_big_flue_btn" onclick="zzhd(5)"> 今日</span>
+                    <span data-id='2' class="ns_big_flue_btn" onclick="zzhd(4)">昨日</span>
+                    <span data-id='3' class="ns_big_flue_btn" onclick="zzhd(3)">近7日</span>
+                    <span data-id='4' class="ns_big_flue_btn ns_big_flue_btn_color" onclick="zzhd(2)">近30日</span>
+                    <span data-id='5' class="ns_big_flue_btn" onclick="zzhd(1)">年度</span>
+
+
+                    <div id="zzhd01" style="height:200px;padding-top:10px" >
+                        <div class="echartesbox" id="yearflow" dg-chart-widget="f04c73205175b6819d58"
+                             dg-chart-auto-resize='true' dg-chart-options="lineechartes"
+                             style="width: 95%; height: 100%;">
+                        </div>
+                    </div>
+
+                    <div id="zzhd02" style="height:200px;padding-top:10px" >
+                        <div class="echartesbox" id="daysflow" dg-chart-widget="0f76d7156175b64d2776"
+                             dg-chart-auto-resize='true' dg-chart-options="lineechartes"
+                             style="width: 95%; height: 100%">
+                            <!--平台30日流量-->
+                        </div>
+                    </div>
+
+                    <div id="zzhd03" style="height:200px;padding-top:10px" >
+                        <div class="echartesbox" id="serdaysflow" dg-chart-widget="acdb7cc0c175b64c7292"
+                             dg-chart-auto-resize='true' dg-chart-options='lineechartes'
+                             style="width: 95%; height: 100%">
+                        </div>
+                    </div>
+
+                    <div id="zzhd04" style="height:200px;padding-top:10px" >
+                        <div class="echartesbox" id="yesterdayflow" dg-chart-widget="ed7fcd31f175b64bb296"
+                             dg-chart-auto-resize='true' dg-chart-options='lineechartes'
+                             style="width: 95%; height: 100%">
+                        </div>
+                    </div>
+                    <div id="zzhd05" style="height:200px;padding-top:10px" >
+                        <div class="echartesbox" id="todayflow" dg-chart-widget="bb870df20175b64977b6"
+                             dg-chart-auto-resize='true' dg-chart-options='lineechartes'
+                             style="width: 95%; height: 100%">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div style="width: 96%; height:320px;margin-top: 2%;padding:2%;border: 1px solid #273491">
+
+
+
+                </div>
+            </div>
+
+            <div style="width: 40%;height:620px;min-width: 550px;float: left;margin: 0 0.3% ;border: 1px solid #273491">
+                <div class="ns_big_act_deta_text color_b7e639 ns_left" style="margin: 15px;float: right"><span
+                        id='datava'></span></div>
+                <p class="ns_big_space_title">
+                    访问量统计</p>
+                <div class="ns_big_apply_rowbox">
+                    <div class="ns_big_apply_cont">
+                        <div dg-chart-widget="bc4667b6d189e37b086b" class="ns_big_apply_cont_num color_b7e639">
+                        </div>
+                        <p class="ns_big_apply_cont_title">今日访问量</p>
+                    </div>
+                    <div class="ns_big_apply_cont ns_big_apply_peoplecont">
+                        <div dg-chart-widget="e42dc8748189e38f917f" class="ns_big_apply_cont_num color_47cb60">
+                        </div>
+                        <p class="ns_big_apply_cont_title">最近7天访问量</p>
+                    </div>
+                    <div class="ns_big_apply_cont ns_big_apply_peoplecont">
+                        <div dg-chart-widget="56210142b189e391d92d" class="ns_big_apply_cont_num color_47cb60">
+                        </div>
+                        <p class="ns_big_apply_cont_title">最近30天访问量</p>
+                    </div>
+                    <div class="ns_big_apply_cont ns_big_apply_startcont">
+                        <div dg-chart-widget="636e0e722189e39549ab" class="ns_big_apply_cont_num color_f8be0e">
+                        </div>
+                        <p class="ns_big_apply_cont_title">最近1年访问量</p>
+                    </div>
+                </div>
+                <p class="ns_big_space_title">活动作品数</p>
+                <div dg-chart-widget="fe1d28be7189fd3d2931" dg-chart-auto-resize='true'
+                     dg-chart-options='mapchartes' dg-chart-map="ensmap"
+                     style="width: 75%; height: 70%;float: left">
+                </div>
+                <p class="ns_big_space_title" style="width: 20%;float: right">点击量统计</p>
+                <div class="ns_big_apply_rowbox" style="width: 20%;height: 300px">
+                    <div class="ns_big_apply_cont">
+                        <div dg-chart-widget="5a4466768189f7fc5d03" class="ns_big_apply_cont_num color_b7e639">
+                        </div>
+                        <p class="ns_big_apply_cont_title">门户今日点击量</p>
+                    </div>
+                    <div class="ns_big_apply_cont ns_big_apply_peoplecont">
+                        <div dg-chart-widget="678e0c7e0189f8016d30" class="ns_big_apply_cont_num color_47cb60">
+                        </div>
+                        <p class="ns_big_apply_cont_title">近7天点击量</p>
+                    </div>
+                    <div class="ns_big_apply_cont ns_big_apply_peoplecont">
+                        <div dg-chart-widget="607d30b3d189f80723ef" class="ns_big_apply_cont_num color_47cb60">
+                        </div>
+                        <p class="ns_big_apply_cont_title">近30天点击量</p>
+                    </div>
+                    <div class="ns_big_apply_cont ns_big_apply_startcont">
+                        <div dg-chart-widget="649e17ff4189f80776f6" class="ns_big_apply_cont_num color_f8be0e">
+                        </div>
+                        <p class="ns_big_apply_cont_title">近1年点击量</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="width: 24%;height:320px;min-width: 350px;float: left;margin: 0 0.9%;">
+                <div style="width: 100%;height:300px;margin-bottom: 2%;padding:1%;border: 1px solid #273491;">
+                    <a style="float: right;  color: #7d9eff;padding-right: 10px" href="http://kj.eszedu.com/zone/index/index"
+                       target="_blank">更多</a>
+                    <p class="ns_big_space_title">最近专题文章访问量</p>
+
+                    <div style="height: 100px">
+                        <div id="parent" class="parent" scrollTop="100" style="height: 250px" onmouseenter="stopgd()"
+                             onmouseleave="startgd()">
+                            <div id="child1" class="child">
+                                <div style="width: 100%;float: left">
+                                    <div class="ns_big_apply_cont_num2 color_b7e639" dg-chart-widget="5109eb68b189f829561f"
+                                         style="width:100%;height:250px;font-weight:bold"
+                                         dg-chart-auto-resize='true' dg-chart-options='examechartes'>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div id="child2" class="child"></div>
+                    </div>
+                </div>
+                <div style="width: 100%;height:300px;margin-bottom: 2%;padding:1%;border: 1px solid #273491;">
+
+                        <div class="ns_big_apply_cont" style="width: 48%">
+                            <div dg-chart-widget="0e73ced86189fd213faa" class="ns_big_apply_cont_num color_b7e639">
+                            </div>
+                            <p class="ns_big_apply_cont_title">2023年专题文章总点击量</p>
+                        </div>
+                    <div class="ns_big_apply_cont ns_big_apply_startcont" style="width: 49%">
+                        <div dg-chart-widget="0b382b267189fd2d612e" class="ns_big_apply_cont_num color_f8be0e">
+                        </div>
+                        <p class="ns_big_apply_cont_title">专题文章总点击量</p>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<style scoped>
+
+    .ns_big_apply_cont_num2 {
+        line-height: 22px;
+        font-size: 14px;
+    }
+    .parent {
+        height: 200px;
+        margin: 0 auto;
+        overflow-y: hidden;
+    }
+    /*设置的子盒子高度大于父盒子，产生溢出效果*/
+    .child {
+        height: auto;
+    }
+    .child li {
+        height: 50px;
+        margin: 2px 0;
+    }
+    html {
+        overflow: -moz-hidden-unscrollable;
+        height: 100%;
+    }
+
+    body::-webkit-scrollbar {
+        display: none;
+    }
+
+    body {
+        -ms-overflow-style: none;
+        height: 100%;
+        width: calc(100vw + 18px);
+        overflow: auto;
+    }
+
+    div,
+    p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .border_1 {
+        border: 1px solid #273491;
+        border-radius: 8px;
+    }
+
+    .ns_left {
+        float: left;
+    }
+
+
+    .ns_big_data {
+        width: 100%;
+        height: 100%;
+        background-image: url("res/images/bigdata.png");
+        background-repeat: no-repeat;
+        /* background: url("res/images/bigdata.png") no-repeat; */
+    }
+
+    .ns_big_title {
+        line-height: 62px;
+        width: 100%;
+        background: url("res/images/bigdatatitle.png") no-repeat center;
+        height: 62px;
+        text-align: center;
+        font-size: 30px;
+        color: #cbd8ff;
+    }
+
+
+    .ns_big_space_title {
+        line-height: 18px;
+        font-size: 16px;
+        text-align-last: left;
+        padding-left: 10px;
+        padding-top: 14px;
+        margin-top: 0;
+        color: #7d9eff;
+        padding-bottom: 10px;
+    }
+
+
+    .ns_big_apply_rowbox {
+        width: 100%;
+        height: 70px;
+        margin-bottom: 8px;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .ns_big_apply_cont {
+        width: 98px;
+        height: 40px;
+        border: 1px solid #627c40;
+        color: #b7e639;
+        text-align: center;
+        padding: 12px 0;
+        border-radius: 2px;
+        /*margin-right: 15px;*/
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .ns_big_apply_cont:nth-child(3) {
+        margin-right: 0;
+    }
+
+    .ns_big_apply_peoplecont {
+        border-color: #296f52;
+        color: #47cb60;
+    }
+
+    .ns_big_apply_startcont {
+        border-color: #82692a;
+        color: #f8be0e;
+    }
+
+    .ns_big_apply_cont_title {
+        line-height: 22px;
+        font-size: 12px;
+    }
+
+    .ns_big_apply_cont_num {
+        line-height: 22px;
+        font-size: 18px;
+    }
+    .ns_big_apply_cont_num3 {
+        line-height: 22px;
+        font-size: 10px;
+    }
+
+    .ns_big_resource_cont .ns_big_apply_cont_num3 {
+        line-height: 22px;
+        font-size: 12px;
+        float: left;
+    }
+
+    .ns_big_flux_title {
+        line-height: 38px;
+        font-size: 16px;
+        padding-left: 10px;
+        color: #7d9eff;
+    }
+
+    .ns_big_dynamic_box {
+        background-color: rgb(67, 78, 183, 0.2);
+        width: calc(100% - 40px);
+        margin: 0 20px;
+        margin-bottom: 10px;
+        height: 118px;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+
+
+    .ns_big_dynamic_ter_img > img {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        vertical-align: top;
+    }
+
+
+    .ns_big_dynamic_ter_cont_box > img {
+        float: left;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+
+    .ns_big_resource_cont .ns_big_apply_cont_num {
+        line-height: 22px;
+        font-size: 16px;
+    }
+
+    .ns_big_resource_cont .ns_big_apply_cont_title {
+        line-height: 22px;
+        font-size: 12px;
+    }
+
+    .ns_big_act_deta_text {
+        font-size: 14px;
+        float: left;
+    }
+
+
+    .dg-chart-label .dg-chart-label-item .label-value {
+        font-size: inherit;
+        padding: 3px;
+    }
+
+
+    .ns_big_act_content_ratio {
+        width: 100%;
+        background-color: rgba(29, 31, 133, 0.3);
+        text-align: center;
+        color: #fff;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+
+    .ns_big_act_content_ratio:nth-child(2) {
+        margin-top: 10px;
+    }
+
+    .ns_big_actcont_title {
+        line-height: 46px;
+        font-size: 12px;
+    }
+
+
+    .ns_big_actcont_imgbox > img {
+        width: 44px;
+        height: 100%;
+    }
+
+
+    .ns_big_addup_12 {
+        line-height: 22px;
+        font-size: 14px;
+        color: #42b0ec;
+    }
+
+    .ns_big_addup_18 {
+        font-size: 28px;
+        font-size: 18px;
+        color: #42b0ec;
+        margin-bottom: 18px;
+    }
+
+
+    .ns_myteacherbox {
+        height: 100%;
+        overflow: hidden;
+        background-color: transparent;
+    }
+    .dataTables_scrollBody{
+        height: auto  !important;
+    }
+
+    .ns_myteacherbox .dataTables_scrollBody {
+        height: 37px !important;
+        overflow: hidden !important;
+    }
+
+    .ns_myteacherbox .dataTables_scrollBody tr {
+        background-color: transparent !important;
+    }
+    table.dataTable tbody td {
+        width: 125px !important;
+        white-space: normal !important;
+    }
+
+    .ns_myteacherbox .dataTables_scrollBody tr:hover {
+        background-color: transparent !important;
+    }
+    .even{
+        background-color: rgba(0,0,0,0) !important;
+        color:  #B7E639 !important;
+    }
+    .odd{
+        background-color: rgba(0,0,0,0) !important;
+        color: #B7E639 !important;
+    }
+    .ns_big_flue_btn_color {
+        background-color: #ff9900;
+    }
+
+    .ns_big_flue_btn {
+        display: inline-block;
+        width: 50px;
+        height: 20px;
+        font-size: 12px;
+        line-height: 20px;
+        background-color: #2e60f4;
+        color: #fff;
+        text-align: center;
+        vertical-align: text-bottom;
+        margin-right: 6px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .color_47cb60 {
+        color: #47cb60 !important;
+    }
+
+    .color_405bc0 {
+        color: #405bc0 !important;
+    }
+
+    .color_2e419f {
+        color: #2e419f !important;
+    }
+
+    .color_b7e639 {
+        color: #b7e639 !important;
+    }
+
+    .activity01 {
+        color: #b7e639 !important;
+        margin: 3% 0;
+    }
+    .activity02 {
+        color: #f8be0e !important;
+        margin: 3% 0;
+    }
+
+    .certificate01 {
+        color: #f8be0e !important;
+    }
+
+
+    .color_fe752b {
+        color: #fe752b !important;
+    }
+
+
+    .cooo{
+        text-align: left !important;
+        color: #fe752b !important;
+    }
+
+
+    .color_f8be0e {
+        color: #f8be0e !important;
+    }
+
+    .ns_big_flux_exp_contcolor {
+        color: #fff !important;
+    }
+
+
+
+    .ns_big_flux_platform {
+        width: calc(100% - 10px);
+        height: 220px;
+    }
+
+
+</style>
+<script>
+    var times=0
+    setInterval(function () {
+        if(times==1){
+            zzhd(5)
+        }
+        times++
+    }, 100);
+
+    function zzhd(x) {
+        document.getElementById("zzhd01").hidden = true
+        document.getElementById("zzhd02").hidden = true
+        document.getElementById("zzhd03").hidden = true
+        document.getElementById("zzhd04").hidden = true
+        document.getElementById("zzhd05").hidden = true
+
+        if (x == 1) {
+            document.getElementById("zzhd01").hidden = false
+        } else  if (x == 2) {
+            document.getElementById("zzhd02").hidden = false
+        }else  if (x == 3) {
+            document.getElementById("zzhd03").hidden = false
+        }else  if (x == 4) {
+            document.getElementById("zzhd04").hidden = false
+        }else  if (x == 5) {
+            document.getElementById("zzhd05").hidden = false
+        }
+    }
+
+
+
+</script>
+</body>
+</html>

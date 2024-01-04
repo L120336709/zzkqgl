@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('考勤图表')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="gray-bg">
+<header class="head">
+    <div style=" color: #2171C5;background-color: white;border-bottom: 2px solid #000;">
+        <div style="width: 100%; text-align: center ;">
+            <div style="font-size: 20px;font-weight:bold;padding: 15px 0">
+                考勤图表
+            </div>
+        </div>
+    </div>
+    <div >
+        <button class="bto1" style="width: 130px;margin: 5px 5%" id="bjkqlb" onclick="tokqgl()">班级考勤列表</button>
+        <button class="bto1" style="width: 130px;margin: 5px 5%"  id="qxkqtj" onclick="qxkqtj()">全校考勤统计</button>
+    </div>
+    <div style="padding: 10px 5%">
+        <input style="width: 35%;padding: 4px" type="text" id="startTime" placeholder="点击选择开始时间" readonly>
+        <input style="width: 35%;padding: 4px" type="text" id="endTime" placeholder="点击选择结束时间" readonly>
+        <button class="bto1" onclick="chaxun()">查询</button>
+        <button class="bto1" id="bto2" onclick="toKqtb()" hidden>返回</button>
+    </div>
+</header>
+<div class="wrapper wrapper-content animated fadeInRight" style="padding: 10px 5%">
+    <span id="tsxx">提示：点击具体年级可以查看对应所有班级考勤信息</span>
+    <div class="row"  >
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content" id="ibox-content">
+                    <div class="echarts" id="echarts-bar-chart" style="height: 200px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="width: 90%;margin: 0 5%;background-color: white">
+    <table id="table" style="width: 100%;text-align: center;" class="table table-bordered table-striped">
+    </table>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: echarts-js"/>
+<script type="text/javascript">
+    $(function () {
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#startTime',
+                type: 'datetime',
+                trigger: 'click'
+            });
+            laydate.render({
+                elem: '#endTime',
+                type: 'datetime',
+                trigger: 'click'
+            });
+        })
+
+        //获取屏幕宽度
+
+        console.log(document.body.clientWidth)
+
+        document.getElementById("echarts-bar-chart").style.width=(document.body.clientWidth*0.85)+"px"
+        document.getElementById("ibox-content").style.width=(document.body.clientWidth*0.9)+"px"
+
+
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            console.log('当前在手机端');
+            document.getElementById("bto2").hidden=true
+        } else {
+            document.getElementById("bjkqlb").hidden=true
+            document.getElementById("qxkqtj").hidden=true
+            document.getElementById("bto2").hidden=false
+
+            document.getElementById("startTime").style.width="30%"
+            document.getElementById("endTime").style.width="30%"
+
+
+            console.log('当前在PC端');
+        }
+
+        getKqtb(1)
+    });
+
+function tokqgl() {
+    window.location.href="/h5/kqgl"
+}
+    function toKqtb()
+    {
+        window.location.href="/h5/Kqtb"
+    }
+
+    function qxkqtj() {
+        window.location.href="/h5/qxkqtj"
+    }
+
+    function setDataX(title, xAxis, series, type) {
+        var barChart = echarts.init(document.getElementById("echarts-bar-chart"));
+
+        var baroption = {
+            title: {
+                text: title
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['请假人次']
+            },
+            grid: {
+                x: 30,
+                x2: 40,
+                y2: 40 //24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    data: xAxis,
+                    // -----------------------------------------------------横坐标倾斜显示
+                    axisLabel: {
+                        interval:0,
+                        rotate:-30  //倾斜的程度
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '请假人次',
+                    type: 'bar',
+                    data: series,
+                    // markPoint : {
+                    //     data : [
+                    //         {name : '年最高', value : 182.2, xAxis: 7, yAxis: 183, symbolSize:18},
+                    //         {name : '年最低', value : 2.3, xAxis: 11, yAxis: 3}
+                    //     ]
+                    // },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ]
+                    }
+                }
+            ]
+        };
+        barChart.setOption(baroption);
+        window.onresize = barChart.resize;
+
+
+        if (type == 1) {
+            barChart.getZr().on('click', function (params) {
+                var point = [params.offsetX, params.offsetY];
+                if (barChart.containPixel('grid', point)) {
+                    var xIndex = barChart.convertFromPixel({seriesIndex: 0}, point)[0];
+                    // var op = barChart.getOption();
+                    // var name = op.xAxis[0].data[xIndex];
+                    getKqtb(2, xAxis[xIndex])
+
+                }
+            })
+        } else if (type == 2){
+            barChart.getZr().off('click');
+            barChart.getZr().on('click', function (params) {
+                var point = [params.offsetX, params.offsetY];
+                if (barChart.containPixel('grid', point)) {
+                    var xIndex = barChart.convertFromPixel({seriesIndex: 0}, point)[0];
+                    // var op = barChart.getOption();
+                    // var name = op.xAxis[0].data[xIndex];
+                    toKqhzb(xClassId[xIndex])
+                   // window.location.href="/h5/Kqhzb?classId="+xClassId[xIndex]
+                   // getKqtb(2, xAxis[xIndex])
+                }
+            })
+        }
+
+    };
+
+
+    function chaxun() {
+        var startTime = document.getElementById("startTime").value
+        var endTime = document.getElementById("endTime").value
+        if (startTime == null || startTime == "" || startTime == undefined) {
+            if (endTime == null || endTime == "" || endTime == undefined) {
+            } else {
+                layer.msg("请选择开始时间！")
+                return
+            }
+        } else {
+            if (endTime == null || endTime == "" || endTime == undefined) {
+                layer.msg("请选择结束时间！")
+                return;
+            }
+        }
+        getKqtb(1)
+    }
+
+    var xAxis
+    var xClass
+    var xClassId
+    function getKqtb(type, gradeName) {
+        if (type == 1) {
+            $.ajax({
+                async: false,
+                type: "post",
+                url: "/kqgl/gradeinfo/ZzGradeinfolist",
+                success: function (data) {
+                    xAxis = new Array()
+                    var series = new Array()
+                    for (var x = 0; x < data.length; x++) {
+                        xAxis.push(data[x].gradeName)
+                        series.push(0)
+                    }
+                    var startTime = document.getElementById("startTime").value
+                    var endTime = document.getElementById("endTime").value
+                    $.ajax({
+                        async: false,
+                        type: "post",
+                        url: "/kqgl/vacation/kqlist",
+                        data: {
+                            "type": 1,
+                            "sqStatus": "1",// 申请状态，1已通过
+                            "startTime": startTime,
+                            "endTime": endTime,
+                            "status":1
+                        },
+                        success: function (data) {
+                            var html = ""
+                            if (data.length > 0) {
+                                var zongji = 0
+                                for (var i = 0; i < data.length; i++) {
+                                    for (var x = 0; x < xAxis.length; x++) {
+                                        if (xAxis[x] == data[i].studentName.split(",")[0]) {
+                                            series[x] = data[i].status
+                                        }
+                                    }
+                                    html = html + "<tr><td>" + (i + 1) + "</td><td><a onclick='getKqtb(2,\""+data[i].studentName.split(",")[0]+"\")'> " + data[i].studentName.split(",")[0] + "</a></td>" +
+                                        "<td>" + data[i].status + "</td></tr>"
+                                    zongji = zongji + Number(data[i].status)
+                                }
+                                html = "<tr ><td style='width: 20%;'>序号</td>" +
+                                    "<td style='width: 40%;'>年级</td>" +
+                                    "<td style='width: 40%;'>请假人次</td></tr>" +
+                                    "<tr><td>0</td><td>总计</td><td>" + zongji + "</td></tr>" + html
+                            }
+                            document.getElementById("table").innerHTML = html
+                            setDataX("年级考勤统计", xAxis, series, 1)
+                        }
+                    })
+                }
+            })
+        } else {
+            document.getElementById("tsxx").innerText = "提示：点击具体班级可以进入班级请假学生信息列表！"
+            $.ajax({
+                async: false,
+                type: "post",
+                data: {
+                    "gradeName": gradeName
+                },
+                url: "/kqgl/classinfo/ZzClassinfolist",
+                success: function (data) {
+                    xClass = new Array()
+                    xClassId = new Array()
+                    var series = new Array()
+                    for (var x = 0; x < data.length; x++) {
+                        xClass.push(data[x].classNickname)
+                        xClassId.push(data[x].classId)
+                        series.push(0)
+                    }
+                    var startTime = document.getElementById("startTime").value
+                    var endTime = document.getElementById("endTime").value
+                    $.ajax({
+                        async: false,
+                        type: "post",
+                        url: "/kqgl/vacation/kqlist",
+                        data: {
+                            "type": 2,
+                            "pap": gradeName,
+                            "sqStatus": "1",// 申请状态，1已通过
+                            "startTime": startTime,
+                            "endTime": endTime,
+                            "status":1
+                        },
+                        success: function (data) {
+                            var html = ""
+                            if (data.length > 0) {
+                                var zongji = 0
+                                for (var i = 0; i < data.length; i++) {
+                                    var xcnum=0;
+                                    for (var x = 0; x < xClass.length; x++) {
+                                        if (xClass[x] == data[i].studentName.split(",")[1]) {
+                                            series[x] = data[i].status
+                                            xcnum=x;
+                                        }
+                                    }
+                                    html = html + "<tr><td>" + (i + 1) + "</td><td><a onclick='toKqhzb(\""+xClassId[xcnum]+"\")'>" + data[i].studentName.split(",")[1] + "</a></td>" +
+                                        "<td>" + data[i].status + "</td></tr>"
+                                    zongji = zongji + Number(data[i].status)
+                                }
+                                html = "<tr ><td style='width: 20%;'>序号</td>" +
+                                    "<td style='width: 40%;'>班级</td>" +
+                                    "<td style='width: 40%;'>请假人次</td></tr>" +
+                                    "<tr><td>0</td><td>总计</td><td>" + zongji + "</td></tr>" + html
+                            }
+                            document.getElementById("table").innerHTML = html
+
+                            setDataX("班级考勤统计", xClass, series, 2)
+                        }
+                    })
+                }
+            })
+        }
+
+
+    }
+
+    function toKqhzb(classId) {
+        var startTime = document.getElementById("startTime").value
+        var endTime = document.getElementById("endTime").value
+        window.location.href="/h5/Kqhzb?classId="+classId+"&type=1"+"&startTime="+startTime+"&endTime="+endTime
+
+    }
+</script>
+<style>
+    .bto1 {
+        width: 17%;
+        margin-left: 1%;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        background-color: #169BD5;
+        color: white;
+        padding: 5px 0;
+        cursor: pointer
+    }
+
+    .down {
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: white;
+        height: 80px;
+        width: 100%;
+        border-top: 2px solid #000;
+    }
+
+</style>
+</body>
+</html>

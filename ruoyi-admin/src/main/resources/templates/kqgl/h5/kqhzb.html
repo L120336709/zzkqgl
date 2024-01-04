@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('考勤汇总表')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="gray-bg">
+<header class="head">
+    <div style=" color: #2171C5;background-color: white;border-bottom: 2px solid #000;">
+        <div style="width: 100%; text-align: center ;">
+            <div style="font-size: 20px;font-weight:bold;padding: 15px 0">
+                考勤汇总表
+            </div>
+            <div th:text="${className}" id="className" style="font-size: 16px;padding: 0 0 10px 0;"></div>
+
+        </div>
+    </div>
+    <div style="padding: 10px 0">
+        <input style="width: 43%;margin-left:5%;padding: 4px" type="text" id="startTime" placeholder="点击选择开始时间"
+               readonly>
+        <input style="width: 43%;padding: 4px;margin-left: 3%;" type="text" id="endTime" placeholder="点击选择结束时间"
+               readonly>
+        <input style="width: 43%;margin-left:5%;padding: 4px;margin-top: 10px" type="text" id="stuName"
+               placeholder="学生姓名">
+        <button class="bto1" onclick="chaxun()">查询</button>
+        <button class="bto1" id="fanhuis" onclick="toKqtb()">返回</button>
+    </div>
+</header>
+<div style="width: 90%;margin: 0 5%;background-color: white">
+    <table id="table" style="width: 100%;text-align: center;" class="table table-bordered table-striped">
+    </table>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: echarts-js"/>
+<script type="text/javascript">
+    $(function () {
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#startTime',
+                type: 'datetime',
+                trigger: 'click'
+            });
+            laydate.render({
+                elem: '#endTime',
+                type: 'datetime',
+                trigger: 'click'
+            });
+        })
+
+
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            console.log('当前在手机端');
+        } else {
+           // document.getElementById("bjkqlb").hidden=true
+            console.log('当前在PC端');
+        }
+    });
+
+
+    function qxkqtj() {
+        window.location.href="/h5/qxkqtj"
+    }
+    function toKqtb()
+    {
+        window.location.href="/h5/Kqtb"
+    }
+
+    var paixu = 1
+    var sc = 1
+
+    function numpaixu() {
+        getKqtb(paixu, null)
+
+        if (paixu == 0) {
+            paixu = 1
+            document.getElementById("qjrc").innerHTML = "请假人次 ↓"
+        } else {
+            paixu = 0
+            document.getElementById("qjrc").innerHTML = "请假人次 ↑"
+        }
+        document.getElementById("qjsc").innerHTML = "累积请假时长 "
+    }
+
+    function scpaixu() {
+
+        getKqtb(null, sc)
+        if (sc == 0) {
+            sc = 1
+            document.getElementById("qjsc").innerHTML = "累积请假时长 ↓"
+        } else {
+            sc = 0
+            document.getElementById("qjsc").innerHTML = "累积请假时长 ↑"
+        }
+        document.getElementById("qjrc").innerHTML = "请假人次"
+    }
+
+    function chaxun() {
+        var startTime = document.getElementById("startTime").value
+        var endTime = document.getElementById("endTime").value
+
+        if (startTime == null || startTime == "" || startTime == undefined) {
+            if (endTime == null || endTime == "" || endTime == undefined) {
+            } else {
+                layer.msg("请选择开始时间！")
+                return
+            }
+        } else {
+            if (endTime == null || endTime == "" || endTime == undefined) {
+                layer.msg("请选择结束时间！")
+                return;
+            }
+        }
+        getKqtb(0)
+    }
+
+    var Students
+    getKqtb(0)
+
+    function getKqtb(paixu, sc) {
+        var value = window.location.search;
+        value = decodeURIComponent(value);
+        var index = value.indexOf("classId")
+        var index2 = value.indexOf("type")
+
+
+        if (index == -1) {
+            return
+        }
+        var classId = value.substring(index + 8)
+        if(index2!=-1){
+            classId = value.substring(index + 8,index2-1)
+        }
+
+        var startTime = document.getElementById("startTime").value
+        var endTime = document.getElementById("endTime").value
+        var stuName = document.getElementById("stuName").value
+
+        if(index2!=-1){
+            var index3 = value.indexOf("startTime")
+            var index4 = value.indexOf("endTime")
+            var type = value.substring(index2 + 5,index3-1)
+             startTime = value.substring(index3 + 10,index4-1)
+            document.getElementById("startTime").value=startTime
+             endTime = value.substring(index4 + 8)
+            document.getElementById("endTime").value=endTime
+            if(type==0){
+                document.getElementById("fanhuis").onclick=function () {
+                    qxkqtj()
+                }
+            }
+        }
+
+
+
+
+        $.ajax({
+            async: false,
+            type: "post",
+            url: "/kqgl/vacation/classStuList",
+            data: {
+                "classId": classId,// 申请状态，1已通过
+                "startTime": startTime,
+                "endTime": endTime,
+                "stuName": stuName,
+                "paixu": paixu,
+                "sc": sc
+            },
+            success: function (data) {
+                var html = ""
+                var zongji = 0
+                var ljTimeInt = 0
+                if (data.length > 0) {
+                    Students = new Array()
+                    for (var i = 0; i < data.length; i++) {
+                        Students.push(data[i])
+                        html = html + "<tr><td>" + (i + 1) + "</td><td><a onclick='showDetail(" + i + ")'>" + data[i].studentName.split(",")[0] + "</a></td>" +
+                            "<td>" + data[i].status + "</td><td>" + (data[i].ljTimeInt / 3600).toFixed(2) + "小时</td></tr>"
+                        zongji = zongji + Number(data[i].status)
+                        ljTimeInt = ljTimeInt + data[i].ljTimeInt
+
+                    }
+
+                }
+                html = "<tr ><td style='width: 20%;'>序号</td>" +
+                    "<td style='width: 25%;'>学生姓名</td>" +
+                    "<td style='width: 25%;' onclick='numpaixu()' id='qjrc' >请假人次 ↓</td>" +
+                    "<td style='width: 30%;' onclick='scpaixu()' id='qjsc'>累积请假时长</td></tr>" +
+                    "<tr><td>0</td><td>总计</td><td>" + zongji + "</td><td>" + (ljTimeInt / 3600).toFixed(2) + "小时</td></tr>" + html
+                document.getElementById("table").innerHTML = html
+            }
+        })
+    }
+
+    function showDetail(i) {
+        var startTime = Students[i].startTimeData.split(";")
+        var endTime = Students[i].endTimeData.split(";")
+        var sqTime = Students[i].sqTimeData.split(";")
+        var xjTime = null
+        if (Students[i].xjTimeData != null) {
+            xjTime = Students[i].xjTimeData.split(";")
+        }
+        var ljTime = Students[i].ljTime.split(";")
+        var ljTimeInt = Students[i].ljTimeInt
+        ljTimeInt = (ljTimeInt / 3600).toFixed(2)
+        var pzTime = Students[i].pzTimeData.split(";")
+        var pzTeacherName = Students[i].pzTeacherName.split(";")
+        var html = "<tr><td style='width: 40%;'>信息类型</td><td style='width: 40%;'>数据</td></tr>"
+        html = html + "<tr><td>学生姓名</td><td>" + Students[i].studentName + "</td></tr>"
+        html = html + "<tr><td>请假次数</td><td>" + startTime.length + "</td></tr>"
+        html = html + "<tr><td>累积时长</td><td>" + ljTimeInt + "小时</td></tr>"
+        for (var x = 0; x < startTime.length; x++) {
+            html = html + "<tr style='background-color: #1E9FFF;color: white'><td >第" + (x + 1) + "次</td><td></td></tr>"
+            html = html + "<tr><td>开始时间</td><td>" + startTime[x] + "</td></tr>"
+            html = html + "<tr><td>结束时间</td><td>" + endTime[x] + "</td></tr>"
+            html = html + "<tr><td>请假时长</td><td>" + ljTime[x] + "</td></tr>"
+            html = html + "<tr><td>申请时间</td><td>" + sqTime[x] + "</td></tr>"
+            html = html + "<tr><td>批准时间</td><td>" + pzTime[x] + "</td></tr>"
+            html = html + "<tr><td>批准老师</td><td>" + pzTeacherName[x] + "</td></tr>"
+            // if (xjTime == null) {
+            //     html = html + "<tr><td>销假时间</td><td>-</td></tr>"
+            // } else {
+            //     html = html + "<tr><td>销假时间</td><td>" + xjTime[x] + "</td></tr>"
+            // }
+            // var qjStatus = Students[i].qjStatus
+            // if (qjStatus == 2) {
+            //     qjStatus = "已销假"
+            // } else if (qjStatus == 0) {
+            //     qjStatus = "未到时间"
+            // } else if (qjStatus == 1) {
+            //     qjStatus = "请假中"
+            // } else if (qjStatus == -1) {
+            //     qjStatus = "已超时"
+            // }
+            // html = html + "<tr><td>请假状态</td><td>" + qjStatus + "</td></tr>"
+        }
+
+
+        document.getElementById("table").innerHTML = html
+
+    }
+</script>
+<style>
+    .bto1 {
+        width: 17%;
+        margin-left: 3%;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        background-color: #169BD5;
+        color: white;
+        padding: 5px 0;
+        cursor: pointer
+    }
+</style>
+</body>
+</html>

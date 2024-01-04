@@ -1,0 +1,134 @@
+
+.divbefore{
+    position: absolute;
+    content: '';
+    top: 0.2em;
+    left: -1.0em;
+    width: 0;height:0;
+    border-top:7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 10px solid black;
+}
+
+.divbeforedown{
+    position: absolute;
+    content: '';
+    top: 0.2em;
+    left: -1.0em;
+    width: 0;height:0;
+    border-left:7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top:10px solid black;
+}
+
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+ul.domtree,
+ul.domtree ul {
+    margin: 0;
+    padding: 0 0 0 2em;
+}
+
+ul.domtree li {
+    list-style: none;
+    position: relative;
+}
+
+ul.domtree > li:first-child:before {
+    border-style: none none solid none;
+}
+
+/*ul.domtree li:before {*/
+/*    position: absolute;*/
+/*    content: '';*/
+/*    top: 0.2em;*/
+/*    left: -1.0em;*/
+/*    !*width: 0.5em;*!*/
+/*    !*height: 0.615em;*!*/
+/*    !*border-style: none none solid solid;*!*/
+/*    !*border-width: 0.05em;*!*/
+/*    !*border-color: #aaa;*!*/
+
+/*    width: 0;height:0;*/
+/*    border-top:7px solid transparent;*/
+/*    border-bottom: 7px solid transparent;*/
+/*    border-left: 10px solid red;*/
+/*}*/
+
+/*ul.domtree li:not(:last-child):after {*/
+/*    position: absolute;*/
+/*    content: '';*/
+/*    top: 0.7em;*/
+/*    left: -0.7em;*/
+/*    bottom: 0;*/
+/*    border-style: none none none solid;*/
+/*    border-width: 0.05em;*/
+/*    border-color: #aaa;*/
+/*}*/
+
+.words {
+    padding: 3px 0;
+    white-space: nowrap;
+}
+
+body .demo .layui-layer-content {
+    background-color: #c00;
+    color: #fff;
+}
+
+a {
+    color: #0066cc;
+}
+
+table {
+
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+td, th {
+    padding: 0;
+}
+
+.pure-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+    border: 1px solid #cbcbcb;
+}
+
+.pure-table caption {
+    color: #000;
+    font: italic 85%/1 arial, sans-serif;
+    padding: 1em 0;
+    text-align: center;
+}
+
+.pure-table td, .pure-table th {
+    border-left: 1px solid #cbcbcb;
+    border-width: 0 0 0 1px;
+    font-size: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: .5em .5em;
+}
+
+.pure-table thead {
+    background-color: #e0e0e0;
+    color: #000;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+.pure-table td {
+    background-color: transparent;
+}
+
+.pure-table-odd td {
+    background-color: #f2f2f2;
+}
+

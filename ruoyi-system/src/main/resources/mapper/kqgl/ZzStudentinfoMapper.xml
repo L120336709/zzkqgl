@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzStudentinfoMapper">
+
+    <resultMap type="ZzStudentinfo" id="ZzStudentinfoResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userNo"    column="user_no"    />
+        <result property="userName"    column="user_name"    />
+        <result property="userHead"    column="user_head"    />
+        <result property="personName"    column="person_name"    />
+        <result property="pinyName"    column="piny_name"    />
+        <result property="gender"    column="gender"    />
+        <result property="idcard"    column="idcard"    />
+        <result property="classId"    column="classId"    />
+        <result property="state"    column="state"    />
+        <result property="eduNo"    column="edu_no"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="identityId"    column="identityId"    />
+        <result property="orgState"    column="org_state"    />
+    </resultMap>
+
+    <sql id="selectZzStudentinfoVo">
+        select id, user_id, user_no, user_name, user_head, person_name, piny_name, gender, idcard, classId, state, edu_no, org_id, org_name, identityId, org_state from zz_studentinfo
+    </sql>
+
+
+    <select id="selectZzStudentinfoList" parameterType="ZzStudentinfo" resultMap="ZzStudentinfoResult">
+        select s.id, user_id, user_no, user_name, user_head, person_name, piny_name, gender, idcard, CONCAT(c.grade_name, ',',c.class_nickname,',',c.class_name) as classId, state, edu_no, org_id, org_name, identityId, org_state from zz_studentinfo s
+        left join zz_classinfo c on c.class_id= s.classId
+        <where>
+            <if test="userNo != null  and userNo != ''"> and user_no = #{userNo}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="personName != null  and personName != ''"> and person_name like concat('%', #{personName}, '%')</if>
+            <if test="pinyName != null  and pinyName != ''"> and piny_name like concat('%', #{pinyName}, '%')</if>
+            <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+            <if test="orgName != null  and orgName != ''"> and org_name like concat('%', #{orgName}, '%')</if>
+            <if test="identityId != null  and identityId != ''"> and identityId = #{identityId}</if>
+            <if test="orgState != null  and orgState != ''"> and org_state = #{orgState}</if>
+            <if test="classId != null  and classId != ''">and classId = #{classId}</if>
+            <if test="state != null  and state != ''">and state = #{state}</if>
+        </where>
+    </select>
+
+    <select id="selectZzStudentinfoById" parameterType="Long" resultMap="ZzStudentinfoResult">
+        <include refid="selectZzStudentinfoVo"/>
+        where id = #{id}
+    </select>
+
+
+
+
+    <select id="selectZzStuListByclassId" parameterType="ZzStudentinfo" resultMap="ZzStudentinfoResult">
+        select s.id, user_id, user_no, user_name, user_head, person_name, piny_name, gender, idcard,
+        CONCAT(c.grade_name, ',',c.class_nickname, ',',c.class_name,',',c.class_id) as classId,
+        state, edu_no, org_id, org_name, identityId, org_state from  zz_studentinfo s
+        left join zz_classinfo c
+        on s.classId=c.class_id
+        <where>
+            <if test="orgState != null  and orgState != ''"> and org_state = #{orgState}</if>
+            <if test="classId != null  and classId != ''">and classId = #{classId}</if>
+            and state=1
+        </where>
+    </select>
+
+
+    <!--批量查找数据 -->
+    <select id="findZzStudentinfoByIdnumberList" parameterType="java.util.ArrayList" resultMap="ZzStudentinfoResult">
+        <include refid="selectZzStudentinfoVo"/>
+        <where>
+            idcard in (
+            <foreach collection="list"  item="Idcard" index="index" separator=",">
+                #{Idcard}
+            </foreach>
+            )
+        </where>
+    </select>
+
+    <insert id="insertZzStudentinfo" parameterType="ZzStudentinfo" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_studentinfo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="userNo != null">user_no,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="userHead != null">user_head,</if>
+            <if test="personName != null">person_name,</if>
+            <if test="pinyName != null">piny_name,</if>
+            <if test="gender != null">gender,</if>
+            <if test="idcard != null">idcard,</if>
+            <if test="classId != null">classId,</if>
+            <if test="state != null">state,</if>
+            <if test="eduNo != null">edu_no,</if>
+            <if test="orgId != null">org_id,</if>
+            <if test="orgName != null">org_name,</if>
+            <if test="identityId != null">identityId,</if>
+            <if test="orgState != null">org_state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="userNo != null">#{userNo},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="userHead != null">#{userHead},</if>
+            <if test="personName != null">#{personName},</if>
+            <if test="pinyName != null">#{pinyName},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="idcard != null">#{idcard},</if>
+            <if test="classId != null">#{classId},</if>
+            <if test="state != null">#{state},</if>
+            <if test="eduNo != null">#{eduNo},</if>
+            <if test="orgId != null">#{orgId},</if>
+            <if test="orgName != null">#{orgName},</if>
+            <if test="identityId != null">#{identityId},</if>
+            <if test="orgState != null">#{orgState},</if>
+        </trim>
+    </insert>
+
+    <update id="updateZzStudentinfo" parameterType="ZzStudentinfo">
+        update zz_studentinfo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userNo != null">user_no = #{userNo},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="userHead != null">user_head = #{userHead},</if>
+            <if test="personName != null">person_name = #{personName},</if>
+            <if test="pinyName != null">piny_name = #{pinyName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="idcard != null">idcard = #{idcard},</if>
+            <if test="classId != null">classId = #{classId},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="eduNo != null">edu_no = #{eduNo},</if>
+            <if test="orgId != null">org_id = #{orgId},</if>
+            <if test="orgName != null">org_name = #{orgName},</if>
+            <if test="identityId != null">identityId = #{identityId},</if>
+            <if test="orgState != null">org_state = #{orgState},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteZzStudentinfoById" parameterType="Long">
+        delete from zz_studentinfo where id = #{id}
+    </delete>
+
+    <delete id="deleteZzStudentinfoByIds" parameterType="String">
+        delete from zz_studentinfo where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <!--批量查找数据 -->
+    <select id="selectListByStudentinfoIds" parameterType="java.util.ArrayList" resultMap="ZzStudentinfoResult">
+        <include refid="selectZzStudentinfoVo"/>
+        <where>
+            user_id in (
+            <foreach collection="list"  item="userId" index="index" separator=",">
+                #{userId}
+            </foreach>
+            )
+        </where>
+    </select>
+
+    <!--批量插入数据 -->
+    <insert id="insertStudentinfoList"  >
+        insert into zz_studentinfo (id, user_id, user_no, user_name, user_head, person_name, piny_name, gender,
+        idcard,classId, state, edu_no, org_id, org_name, identityId, org_state )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},#{item.userId},#{item.userNo},#{item.userName},#{item.userHead},#{item.personName},
+            #{item.pinyName},#{item.gender},#{item.idcard},#{item.classId},#{item.state},#{item.eduNo},
+            #{item.orgId},#{item.orgName},#{item.identityId},#{item.orgState})
+        </foreach>
+    </insert>
+
+    <!--批量更新数据 -->
+    <update id="updateStudentinfoList" parameterType="java.util.List">
+        update zz_studentinfo set
+        user_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userId,jdbcType=VARCHAR}
+        </foreach>
+        ,user_no =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userNo,jdbcType=VARCHAR}
+        </foreach>
+        ,user_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userName,jdbcType=VARCHAR}
+        </foreach>
+        ,user_head =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userHead,jdbcType=VARCHAR}
+        </foreach>
+        ,state =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.state,jdbcType=VARCHAR}
+        </foreach>
+        ,person_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.personName,jdbcType=VARCHAR}
+        </foreach>
+        ,piny_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.pinyName,jdbcType=VARCHAR}
+        </foreach>
+        ,gender =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gender,jdbcType=VARCHAR}
+        </foreach>
+
+        ,idcard =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.idcard,jdbcType=VARCHAR}
+        </foreach>
+        ,classId =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.classId,jdbcType=VARCHAR}
+        </foreach>
+        ,edu_no =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.eduNo,jdbcType=VARCHAR}
+        </foreach>
+
+        ,org_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.orgId,jdbcType=VARCHAR}
+        </foreach>
+        ,org_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.orgName,jdbcType=VARCHAR}
+        </foreach>
+        ,identityId =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.identityId,jdbcType=VARCHAR}
+        </foreach>
+        ,org_state =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.orgState,jdbcType=VARCHAR}
+        </foreach>
+
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=DECIMAL}
+        </foreach>
+    </update>
+
+</mapper>

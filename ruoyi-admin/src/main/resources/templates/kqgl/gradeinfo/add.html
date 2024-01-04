@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增年级表')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-gradeinfo-add">
+<!--            <div class="form-group">    -->
+<!--                <label class="col-sm-3 control-label">所属年级Id：</label>-->
+<!--                <div class="col-sm-8">-->
+<!--                    <input name="gradeId" class="form-control" type="text">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="form-group">    -->
+<!--                <label class="col-sm-3 control-label">所属年级代码：</label>-->
+<!--                <div class="col-sm-8">-->
+<!--                    <input name="gradeCode" class="form-control" type="text">-->
+<!--                </div>-->
+<!--            </div>-->
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red">*</span>年级名称：</label>
+                <div class="col-sm-8">
+                    <input name="gradeName" id="gradeName" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">学校：</label>
+                <div class="col-sm-8">
+                    <input name="schoolId" class="form-control" type="text"  style="display:none;" value="10010308">
+                    <input name="schoolNames" class="form-control" type="text" value="恩施市中等职业技术学校" readonly>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "kqgl/gradeinfo"
+        $("#form-gradeinfo-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            var gradeName = document.getElementById("gradeName").value;
+            if(gradeName == "") {
+                layer.msg("请输入年级名称！",{icon:3});
+                return false;
+            }
+
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-gradeinfo-add').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

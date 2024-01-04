@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改教师绑定班级')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-class-edit" th:object="${zzTeachClass}">
+            <input name="id" id="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">教师id：</label>
+                <div class="col-sm-8">
+                    <input   id="teacherName" class="form-control"  th:field="*{teacherName}" type="text" placeholder="点击输入框选择教师"
+                             readonly onclick="showTeacher()">
+                    <input name="teacherId" id="teacherId" th:field="*{teacherId}" class="form-control" type="hidden"  >
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">班级id：</label>
+                <div class="col-sm-8">
+
+                    <input   id="className" class="form-control"  th:field="*{className}" type="text" placeholder="点击输入框选择班级"
+                             readonly onclick="showClass()">
+                    <input name="classId" id="classId"  th:field="*{classId}" class="form-control" type="hidden">
+                </div>
+            </div>
+            <div class="form-group" hidden="hidden">
+                <label class="col-sm-3 control-label">创建人：</label>
+                <div class="col-sm-8">
+                    <input name="createPeople" th:field="*{createPeople}" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script src="/js/kqgl/kqgl.js"></script>
+    <script th:inline="javascript">
+        var prefix = ctx + "kqgl/class";
+
+        $("#form-class-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            var teacherId=document.getElementById("teacherId").value
+            teacherId=teacherId.replace(/\s*/g,"");
+            var classId=document.getElementById("classId").value
+            classId=classId.replace(/\s*/g,"");
+            if(teacherId==""||teacherId==null){
+                layer.msg("请选择一名教师！")
+            }
+            if(classId==""||classId==null){
+                layer.msg("请选择一个班级！")
+            }
+            var result=checkTeacher(teacherId)
+            if( result != 0){
+                if(result != document.getElementById("id").value){
+                    layer.msg("当前教师已绑定班级！",{icon:2,time:2000})
+                    return
+                }
+            }
+
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-class-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

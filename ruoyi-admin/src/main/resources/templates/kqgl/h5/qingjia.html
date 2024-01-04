@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,
+          maximum-scale=1,user-scalable=0,viewport-fit=cover">
+    <meta name="author" content="text/html; charset=utf-8">
+    <title>请假登记</title>
+</head>
+<body style="overflow-x:hidden">
+<main>
+    <div class="maindiv">
+        <div style="font-size: 20px;color: #2171C5;text-align: center;padding: 20px">
+            学生请假登记
+        </div>
+        <div>
+            <div>
+                班级：<span th:text="${className}" id="className" style="color: black">-</span>
+            </div>
+            <div>
+                <div th:text="${stuId}" id="stuId" hidden></div>
+                学生姓名：<span th:text="${userName}" id="userName" style="color: black">-</span>
+            </div>
+        </div>
+        <div>
+            <div>
+                近30天累计已请假：<span th:text="${months}" id="months">-天</span>
+            </div>
+            <div>
+                本周累计已请假：<span th:text="${benweek}" id="benweek">-天</span>
+            </div>
+            <div>
+                本月累计已请假：<span th:text="${benmonth}" id="benmonth">-天</span>
+            </div>
+        </div>
+        <div>
+            <div class="buts">
+                <span style="color: red">*</span>请假事由：
+                <select id="qjType">
+                    <option value="">--选择请假原因--</option>
+                    <option value="公假">公假</option>
+                    <option value="事假">事假</option>
+                    <option value="病假">病假</option>
+                    <option value="休学">休学</option>
+                    <option value="退学">退学</option>
+                    <option value="其他">其他</option>
+                </select>
+                <div th:text="${qjType}" id="qjTypes" hidden></div>
+            </div>
+            <div class="buts">
+                请假事由补充说明：
+                <textarea maxlength="200" id="qjReason" th:text="${qjReason}"
+                          placeholder="请假事由补充说明（最多200字）"></textarea>
+            </div>
+            <div class="buts">
+                <span style="color: red">*</span>请假开始时间：
+                <input type="text" class="form-control" th:value="${#dates.format(oldStartTime, 'yyyy-MM-dd HH:mm:ss')}"
+                       id="start_time" placeholder="点击选择开始时间" readonly>
+            </div>
+            <div class="buts">
+                <span style="color: red">*</span>请假结束时间：
+                <input type="text" class="form-control" th:value="${#dates.format(oldEndTime, 'yyyy-MM-dd HH:mm:ss')}"
+                       id="end_time" placeholder="点击选择结束时间" readonly>
+            </div>
+            <div>
+                本次请假总计：<span id="qj_day" th:text="${qj_day}">-</span> 天，<span id="qj_hour" th:text="${qj_hour}">-</span>个小时
+            </div>
+
+            <div id="sqStatus" th:text="${sqStatus}" hidden></div>
+            <div>申请状态：<span id="sq_status"></span></div>
+
+
+            <div style="padding: 0 8px">
+                <span style="width:100%;font-weight: normal;color: #595959">(登记后不可修改)</span>
+            </div>
+            <div style="padding: 0 8px">
+                <span style="font-weight: normal;color: #595959">(结束请假后才能进行下一次请假)</span>
+            </div>
+            <div style="padding: 0 8px">
+                <span style="font-weight: normal;color: #595959">(销假操作会删除本次请假)</span>
+            </div>
+            <div id="qj_id" th:text="${qj_id}" hidden></div>
+        </div>
+        <div class="buts" style="margin: 20px 0">
+            <button onclick="student()">返回</button>
+            <button onclick="Save()" id="bto1">登记</button>
+            <button onclick="XiaoJia()" id="bto2" hidden>销假</button>
+            <button onclick="JieShu()" id="bto3" hidden>结束请假</button>
+        </div>
+    </div>
+    <div id="qjStatus" th:text="${qjStatus}" hidden></div>
+</main>
+<div id="accessToken" th:text="${accessToken}" hidden></div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script>
+
+    function student() {
+        var accessToken = document.getElementById("accessToken").innerText
+        window.location.href = "/h5/index?accessToken=" + accessToken
+    }
+
+    // 存储请假计划
+    function Save() {
+        var stuId = document.getElementById("stuId").innerHTML
+        var userName = document.getElementById("userName").innerText
+        var start_time = document.getElementById("start_time").value
+        var end_time = document.getElementById("end_time").value
+
+        var qjType = $("#qjType option:selected").attr("value");
+        if (qjType == '') {
+            layer.msg("请选择请假原因", {icon: 0, time: 1500})
+            return;
+        }
+
+        if (start_time == '') {
+            layer.msg("请选择请假开始时间", {icon: 0, time: 1500})
+            return;
+        }
+        if (end_time == '') {
+            layer.msg("请选择请假开始时间", {icon: 0, time: 1500})
+            return;
+        }
+        var qjReason = document.getElementById("qjReason").value
+
+
+        $.ajax({
+            type: "post",
+            url: "/kqgl/vacation/add",
+            data: {
+                "studentId": stuId,
+                "studentName": userName,
+                "startTime": start_time,
+                "endTime": end_time,
+                "qjType": qjType,
+                "qjReason": qjReason,
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    layer.msg("代为请假成功！", {icon: 1, time: 1500}, function () {
+                        location.reload()
+                    })
+                }
+            }
+        });
+    }
+
+    //销假
+    function XiaoJia() {
+        layer.confirm("是否删除本次请假？删除后不可恢复", {
+            icon: 0,
+            title: "安全提示",
+            btn: ['确认'	, '取消'],
+            offset: ['30%']
+        }, function (index) {
+            var qj_id = document.getElementById("qj_id").innerText
+            $.ajax({
+                type: "post",
+                url: "/kqgl/vacation/edit",
+                data: {
+                    "id": qj_id,
+                    "status": "0"
+                },
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg("删除本次请假成功！", function () {
+                            location.reload()
+                        })
+                    }
+                }
+            });
+            layer.close(index);
+        });
+
+    }
+
+    function JieShu() {
+        layer.confirm("是否结束本次请假？结束本次请假后才能进行新的请假", {
+            icon: 0,
+            title: "安全提示",
+            btn: ['确认'	, '取消'],
+            offset: ['30%']
+        }, function (index) {
+            var qj_id = document.getElementById("qj_id").innerText
+             $.ajax({
+                 type: "post",
+                 url: "/kqgl/vacation/edit",
+                 data: {
+                     "id": qj_id,
+                     "qjStatus": "2"
+                 },
+                 success: function (data) {
+                     if (data.code == 0) {
+                         layer.msg("结束本次请假成功！", function () {
+                             location.reload()
+                         })
+                     }
+                 }
+             });
+            layer.close(index);
+        });
+    }
+
+    function gettimes(begin_time, end_time) {
+        if (begin_time == null || end_time == null || begin_time == "" || end_time == "") {
+            return
+        }
+        var beginTime = (new Date(begin_time).getTime());
+        var endTime = (new Date(end_time).getTime());
+        var subtime = (endTime - beginTime) / 1000;    //计算时间差,并将毫秒转化为秒
+
+        var days = Math.trunc(subtime / 86400);  //天  24*60*60*1000
+        var hours = Math.trunc(subtime / 3600) - 24 * days;   //小时  60*60  总小时数-过去小时数=现在小时数
+        var mins = subtime % 3600 / 60;    //分钟 - (day*24)  以60秒为一整份  取余 剩下秒数 秒数/60就是分钟数
+        //var secs = subtime % 60;   //以60秒为一整份  取余  剩下秒数
+        if (mins > 0) {
+            hours = hours + 1;
+        }
+        document.getElementById("qj_day").innerText = days
+        document.getElementById("qj_hour").innerText = hours
+    }
+
+    $(function () {
+        var qj_day = document.getElementById("qj_day").innerText;
+        if (qj_day != null && qj_day != "-" && qj_day != "") {
+
+            document.getElementById("bto1").hidden = true
+            document.getElementById("bto2").hidden = false
+            document.getElementById("bto3").hidden = false
+
+            document.getElementById("sq_status").innerText = "已批准"
+            document.getElementById("sq_status").style.color = "#31DA08"
+            document.getElementById("start_time").disabled = true
+            document.getElementById("end_time").disabled = true
+            document.getElementById("qjType").disabled = true
+            document.getElementById("qjReason").disabled = true
+
+
+            // var sqStatus = document.getElementById("sqStatus").innerText
+            // if (sqStatus == 0) {
+            //     document.getElementById("sq_status").innerText = "审批中"
+            //     document.getElementById("sq_status").style.color = "#ffa02f"
+            //     document.getElementById("bto2").onclick = function (ev) {
+            //         layer.msg("本次请假审批中，审批后可销假", {icon: 0, time: 2000})
+            //     }
+            // } else if (sqStatus == 1) {
+            //     document.getElementById("sq_status").innerText = "已批准"
+            //     document.getElementById("sq_status").style.color = "#31DA08"
+            //     document.getElementById("bto2").onclick = function (ev) {
+            //         XiaoJia()
+            //     }
+            // } else if (sqStatus == 2) {
+            //     document.getElementById("sq_status").innerText = "已驳回"
+            //     document.getElementById("sq_status").style.color = "#FD2828"
+            //     document.getElementById("bto2").disabled = true
+            //     document.getElementById("bto2").style.backgroundColor = "#ddd"
+            //     document.getElementById("bto2").style.cursor = "not-allowed"
+            // }
+        }
+
+
+        var select = document.getElementById("qjType");
+        var qjTypes = document.getElementById("qjTypes").innerText
+        for (var i = 0; i < select.options.length; i++) {
+            if (select.options[i].innerHTML == qjTypes) {
+                select.options[i].selected = true;
+                break;
+            }
+        }
+
+
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#start_time',
+                type: 'datetime',
+                trigger: 'click',
+                done: function (val) {
+                    var end = document.getElementById("end_time").value
+                    if (val != null && end != null) {
+                        gettimes(val, end)
+                    }
+                }
+            });
+            laydate.render({
+                elem: '#end_time',
+                type: 'datetime',
+                trigger: 'click',
+                done: function (val) {
+                    var start = document.getElementById("start_time").value
+                    if (val != null && start != null) {
+                        gettimes(start, val)
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+<style>
+    .form-control {
+        padding: 0;
+        border: none;
+        height: auto;
+        color: #1E9FFF;
+        font-size: 16px;
+        /*margin: 20px;*/
+    }
+
+    .form-control::placeholder {
+        color: #1E9FFF;
+    }
+
+    .maindiv {
+        height: auto;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .maindiv div {
+        padding: 10px 15px;
+    }
+
+    .maindiv div div {
+        padding: 8px;
+    }
+
+    .maindiv div div span {
+        font-weight: normal;
+        color: #1E9FFF;
+    }
+
+    .buts {
+        padding: 10px 0;
+        width: 100%;
+    }
+
+    .buts select {
+        padding: 5px
+    }
+
+    .buts textarea {
+        width: 90%;
+        height: 50px;
+        padding: 5px;
+        margin: 5px 0;
+    }
+
+    .buts button {
+        width: 20%;
+        margin-left: 8%;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        background-color: #169BD5;
+        color: white;
+        padding: 5px 0;
+        cursor: pointer
+    }
+
+    .buts input {
+        width: 160px;
+    }
+
+
+</style>
+</html>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzGradeinfoMapper">
+    
+    <resultMap type="ZzGradeinfo" id="ZzGradeinfoResult">
+        <result property="id"    column="id"    />
+        <result property="gradeId"    column="grade_id"    />
+        <result property="gradeCode"    column="grade_code"    />
+        <result property="gradeName"    column="grade_name"    />
+        <result property="schoolId"    column="school_id"    />
+    </resultMap>
+
+    <sql id="selectZzGradeinfoVo">
+        select id, grade_id, grade_code, grade_name, school_id from zz_gradeinfo
+    </sql>
+
+    <select id="selectZzGradeinfoList" parameterType="ZzGradeinfo" resultMap="ZzGradeinfoResult">
+        <include refid="selectZzGradeinfoVo"/>
+        <where>  
+            <if test="gradeId != null  and gradeId != ''"> and grade_id = #{gradeId}</if>
+            <if test="gradeCode != null  and gradeCode != ''"> and grade_code = #{gradeCode}</if>
+            <if test="gradeName != null  and gradeName != ''"> and grade_name like concat('%', #{gradeName}, '%')</if>
+            <if test="schoolId != null  and schoolId != ''"> and school_id = #{schoolId}</if>
+        </where>
+    </select>
+    
+    <select id="selectZzGradeinfoById" parameterType="Long" resultMap="ZzGradeinfoResult">
+        <include refid="selectZzGradeinfoVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertZzGradeinfo" parameterType="ZzGradeinfo" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_gradeinfo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="gradeId != null">grade_id,</if>
+            <if test="gradeCode != null">grade_code,</if>
+            <if test="gradeName != null">grade_name,</if>
+            <if test="schoolId != null">school_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="gradeId != null">#{gradeId},</if>
+            <if test="gradeCode != null">#{gradeCode},</if>
+            <if test="gradeName != null">#{gradeName},</if>
+            <if test="schoolId != null">#{schoolId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZzGradeinfo" parameterType="ZzGradeinfo">
+        update zz_gradeinfo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="gradeId != null">grade_id = #{gradeId},</if>
+            <if test="gradeCode != null">grade_code = #{gradeCode},</if>
+            <if test="gradeName != null">grade_name = #{gradeName},</if>
+            <if test="schoolId != null">school_id = #{schoolId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+
+    <!--批量查找数据 -->
+    <select id="selectListByGradeIds" parameterType="java.util.ArrayList" resultMap="ZzGradeinfoResult">
+        <include refid="selectZzGradeinfoVo"/>
+        <where>
+            grade_id in (
+            <foreach collection="list"  item="gradeId" index="index" separator=",">
+                #{gradeId}
+            </foreach>
+            )
+        </where>
+    </select>
+
+    <!--批量插入数据 -->
+    <insert id="insertGradeinfoList"  >
+        insert into zz_gradeinfo (id, grade_id, grade_code, grade_name, school_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            ( #{item.id},#{item.gradeId},#{item.gradeCode},#{item.gradeName},#{item.schoolId})
+        </foreach>
+    </insert>
+
+    <!--批量更新数据 -->
+    <update id="updateGradeinfoList" parameterType="java.util.List">
+        update zz_gradeinfo set
+        grade_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeId,jdbcType=VARCHAR}
+        </foreach>
+        ,grade_code =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeCode,jdbcType=VARCHAR}
+        </foreach>
+        ,grade_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gradeName,jdbcType=VARCHAR}
+        </foreach>
+        ,school_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.schoolId,jdbcType=VARCHAR}
+        </foreach>
+
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=DECIMAL}
+        </foreach>
+    </update>
+
+
+
+    <delete id="deleteZzGradeinfoById" parameterType="Long">
+        delete from zz_gradeinfo where id = #{id}
+    </delete>
+
+    <delete id="deleteZzGradeinfoByIds" parameterType="String">
+        delete from zz_gradeinfo where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

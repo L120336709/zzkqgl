@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,
+          maximum-scale=1,user-scalable=0,viewport-fit=cover">
+    <meta name="author" content="text/html; charset=utf-8">
+    <title>班级考勤列表</title>
+</head>
+<body>
+
+<header class="head">
+    <div style="height: 120px; color: #2171C5;background-color: white;border-bottom: 2px solid #000;
+margin-right: 5%">
+        <div style="width: 100%; text-align: center ;">
+            <div style="font-size: 20px;font-weight:bold;padding: 15px 0">
+                班级考勤列表
+            </div>
+            <div style="font-size: 14px;color: black;font-weight:bold;text-align: left;padding: 5px">
+                <div th:text="${classId}" id="classId" hidden=""></div>
+                <div th:text="${TeacherId}" id="TeacherId" hidden=""></div>
+                <div th:text="${boo2}" id="boo2" hidden=""></div>
+                班级：<input hidden th:text="${className}" id="className"/>
+            </div>
+
+            <div style="font-size: 14px;color: black;font-weight:bold;text-align: left;padding: 5px">
+                共 <span style="color: #2171C5;font-weight: unset" id="stuNums">-</span>名学生，
+                请假<span id="Vations" style="color: #2171C5;font-weight: unset">-</span>人
+<!--                <a style="float: right;color: #2171C5;text-decoration:underline" onclick="qjList()">学生请假申请</a>-->
+            </div>
+
+        </div>
+    </div>
+</header>
+<main style="margin-top: 120px">
+    <div><span style="font-size: 10px;padding: 5px">点击学生可查看学生具体信息和代为请假登记</span></div>
+    <div class="maindiv" id="maindiv" style=" height : auto">
+        <div class="buts">
+        </div>
+    </div>
+</main>
+<div class="down">
+    <div class="buts">
+        <input type="text" class="form-control" id="cxData" placeholder="点击选择考勤日期" readonly>
+        <button onclick="setStudent()">刷新</button>
+        <button onclick="toKqtb()" id="kqtb" hidden>考勤图表</button>
+    </div>
+</div>
+<div id="accessToken" th:text="${accessToken}"  hidden></div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script>
+    var prefix = ctx + "kqgl/class";
+    $(function() {
+        var TeacherId=document.getElementById("TeacherId").innerText
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add/"+TeacherId,
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "教师绑定班级"
+        }
+        $.table.init(options);
+    })
+    setStudent()
+
+    function toKqtb()
+    {
+        window.location.href="/h5/Kqtb"
+    }
+    function qjList() {
+        var className=document.getElementById("className").innerText
+        var accessToken=document.getElementById("accessToken").innerText
+        window.location.href="/h5/qjlist?studentIds="+studentIds+"&className="+className+"&accessToken="+accessToken
+    }
+    var studentIds;
+    function setStudent() {
+        //
+        var boo2=document.getElementById("boo2").innerText
+        if(boo2!=""){
+            var boo=boo2.split(",")
+            console.log(boo[1])
+            if(boo[1]==1){
+                document.getElementById("kqtb").hidden=false
+            }
+        }
+
+
+        var className=document.getElementById("className").innerText
+        if(className!=''){
+            var index=className.indexOf("班")
+            if(index!=-1){
+                className=className.substring(index+1)
+                document.getElementById("className").innerText=className
+            }
+        }
+
+
+        var classId = document.getElementById("classId").innerText
+        if (classId != "" && classId != null) {
+            $.ajax({
+                type: "post",
+                url: "/kqgl/studentinfo/getStudent",
+                data: {
+                    "classId": classId
+                },
+                success: function (data) {
+                    if (data.code == 0) {
+                        studentIds = ""
+                        document.getElementById("stuNums").innerText = data.data.length
+                        if (data.data.length > 0) {
+                            var html = "<div class=\"buts\">"
+                            for (var i = 0; i < data.data.length; i++) {
+
+                                if (i == 0) {
+                                    studentIds = data.data[i].id
+                                } else {
+                                    studentIds = studentIds + "," + data.data[i].id
+                                }
+                                html = html + "<button id='" + data.data[i].id + "' onclick='toqj(" + data.data[i].id + ")'>" + data.data[i].personName + "</button>\n";
+                            }
+                            html = html + "</div>"
+
+                            html = html + "<div style='height: 100px'></div>"
+                            document.getElementById("maindiv").innerHTML = html
+                        } else {
+                            document.getElementById("maindiv").innerHTML = '绑定的班级没有学生信息！'
+                        }
+                        var cxData = document.getElementById("cxData").value
+                        $.ajax({
+                            type: "post",
+                            url: "/kqgl/vacation/studentlist",
+                            data: {
+                                "studentIds": studentIds,
+                                "sqTime": cxData,
+                                "sqStatus": "1",// 申请状态，1已通过
+                                "qjStatus": "0,1,2" ,  // 请假时间内的，1已通过
+                                "fw":"1" // 时间需要默认设置成今天
+                            },
+                            success: function (data) {
+                                document.getElementById("Vations").innerText = data.length
+                                if (data.length > 0) {
+                                    for (var i = 0; i < data.length; i++) {
+                                        var date=new Date().getTime();
+                                        var startTime=new Date(data[i].startTime).getTime();
+                                        var endTime=new Date(data[i].endTime).getTime();
+                                        if(date>startTime && date<endTime){
+
+                                        }
+                                        document.getElementById(data[i].studentId).style.backgroundColor = "#F59A23"
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        } else {
+            // document.getElementById("maindiv").innerHTML = '<div style="padding: 20px;text-align: center;">' +
+            //     '<span style="font-size: 16px;color: red;font-weight:bold;">未绑定班级，点击下方按钮进行绑定！</span>' +
+            //     '<div class="buts" ><button  style="width: 100px" onclick="$.operate.add()">绑定班级</button></div>' +
+            //     '</div>'
+            document.getElementById("maindiv").innerHTML = '<div style="padding: 20px;text-align: center;">' +
+                '<span style="font-size: 16px;color: red;font-weight:bold;">未绑定班级，请联系管理员进行绑定！</span>' +
+                '</div>'
+        }
+    }
+
+    function toqj(stuId){
+        var className=document.getElementById("className").innerText
+        var accessToken=document.getElementById("accessToken").innerText
+        window.location.href="/h5/toqjgl?stuId="+stuId+"&className="+className+"&accessToken="+accessToken
+
+    }
+    $(function () {
+        <!-- laydate示例 -->
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#cxData'
+            });
+        });
+    });
+</script>
+</body>
+<style>
+    .form-control {
+        padding: 0;
+        border: none;
+        height: auto;
+        margin: 20px;
+    }
+
+    .head {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 10%;
+    }
+
+    .down {
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: white;
+        height: 80px;
+        border-top: 2px solid #000;
+    }
+
+    .buts {
+        padding: 10px 0 0 1%;
+        width: 100%;
+    }
+
+    .buts button {
+        width: 17%;
+        /*margin-left: 1%;*/
+        margin: 5px 0 5px 1%;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        background-color: #169BD5;
+        color: white;
+        padding: 5px 0;
+        cursor: pointer
+    }
+</style>
+</html>

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzTeacherinfoMapper">
+
+    <resultMap type="ZzTeacherinfo" id="ZzTeacherinfoResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userNo"    column="user_no"    />
+        <result property="userName"    column="user_name"    />
+        <result property="mobile"    column="mobile"    />
+        <result property="mobileIsbind"    column="mobileIsbind"    />
+        <result property="email"    column="email"    />
+        <result property="emailIsbind"    column="emailIsbind"    />
+        <result property="userHead"    column="user_head"    />
+        <result property="state"    column="state"    />
+        <result property="personName"    column="person_name"    />
+        <result property="pinyName"    column="piny_name"    />
+        <result property="gender"    column="gender"    />
+        <result property="national"    column="national"    />
+        <result property="birthday"    column="birthday"    />
+        <result property="idcard"    column="idcard"    />
+        <result property="employId"    column="employ_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="orgIdentityid"    column="org_identityId"    />
+        <result property="orgState"    column="org_state"    />
+    </resultMap>
+
+    <sql id="selectZzTeacherinfoVo">
+        select id, user_id, user_no, user_name, mobile, mobileIsbind, email, emailIsbind, user_head, state, person_name, piny_name, gender, national, birthday, idcard, employ_id, org_id, org_name, org_identityId, org_state from zz_teacherinfo
+    </sql>
+
+    <select id="selectZzTeacherinfoList" parameterType="ZzTeacherinfo" resultMap="ZzTeacherinfoResult">
+        <include refid="selectZzTeacherinfoVo"/>
+        <where>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="userNo != null  and userNo != ''"> and user_no = #{userNo}</if>
+            <if test="mobile != null  and mobile != ''"> and mobile = #{mobile}</if>
+            <if test="mobileIsbind != null  and mobileIsbind != ''"> and mobileIsbind = #{mobileIsbind}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="emailIsbind != null  and emailIsbind != ''"> and emailIsbind = #{emailIsbind}</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+            <if test="personName != null  and personName != ''"> and person_name like concat('%', #{personName}, '%')</if>
+            <if test="pinyName != null  and pinyName != ''"> and piny_name like concat('%', #{pinyName}, '%')</if>
+            <if test="national != null  and national != ''"> and national = #{national}</if>
+            <if test="birthday != null  and birthday != ''"> and birthday = #{birthday}</if>
+            <if test="employId != null  and employId != ''"> and employ_id = #{employId}</if>
+            <if test="orgId != null  and orgId != ''"> and org_id = #{orgId}</if>
+            <if test="orgName != null  and orgName != ''"> and org_name like concat('%', #{orgName}, '%')</if>
+            <if test="orgIdentityid != null  and orgIdentityid != ''"> and org_identityId = #{orgIdentityid}</if>
+            <if test="orgState != null  and orgState != ''"> and org_state = #{orgState}</if>
+        </where>
+    </select>
+
+    <select id="selectZzTeacherinfoById" parameterType="Long" resultMap="ZzTeacherinfoResult">
+        <include refid="selectZzTeacherinfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertZzTeacherinfo" parameterType="ZzTeacherinfo" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_teacherinfo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="userNo != null">user_no,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="mobile != null">mobile,</if>
+            <if test="mobileIsbind != null">mobileIsbind,</if>
+            <if test="email != null">email,</if>
+            <if test="emailIsbind != null">emailIsbind,</if>
+            <if test="userHead != null">user_head,</if>
+            <if test="state != null">state,</if>
+            <if test="personName != null">person_name,</if>
+            <if test="pinyName != null">piny_name,</if>
+            <if test="gender != null">gender,</if>
+            <if test="national != null">national,</if>
+            <if test="birthday != null">birthday,</if>
+            <if test="idcard != null">idcard,</if>
+            <if test="employId != null">employ_id,</if>
+            <if test="orgId != null">org_id,</if>
+            <if test="orgName != null">org_name,</if>
+            <if test="orgIdentityid != null">org_identityId,</if>
+            <if test="orgState != null">org_state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="userNo != null">#{userNo},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="mobile != null">#{mobile},</if>
+            <if test="mobileIsbind != null">#{mobileIsbind},</if>
+            <if test="email != null">#{email},</if>
+            <if test="emailIsbind != null">#{emailIsbind},</if>
+            <if test="userHead != null">#{userHead},</if>
+            <if test="state != null">#{state},</if>
+            <if test="personName != null">#{personName},</if>
+            <if test="pinyName != null">#{pinyName},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="national != null">#{national},</if>
+            <if test="birthday != null">#{birthday},</if>
+            <if test="idcard != null">#{idcard},</if>
+            <if test="employId != null">#{employId},</if>
+            <if test="orgId != null">#{orgId},</if>
+            <if test="orgName != null">#{orgName},</if>
+            <if test="orgIdentityid != null">#{orgIdentityid},</if>
+            <if test="orgState != null">#{orgState},</if>
+        </trim>
+    </insert>
+
+    <update id="updateZzTeacherinfo" parameterType="ZzTeacherinfo">
+        update zz_teacherinfo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userNo != null">user_no = #{userNo},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="mobile != null">mobile = #{mobile},</if>
+            <if test="mobileIsbind != null">mobileIsbind = #{mobileIsbind},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="emailIsbind != null">emailIsbind = #{emailIsbind},</if>
+            <if test="userHead != null">user_head = #{userHead},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="personName != null">person_name = #{personName},</if>
+            <if test="pinyName != null">piny_name = #{pinyName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="national != null">national = #{national},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="idcard != null">idcard = #{idcard},</if>
+            <if test="employId != null">employ_id = #{employId},</if>
+            <if test="orgId != null">org_id = #{orgId},</if>
+            <if test="orgName != null">org_name = #{orgName},</if>
+            <if test="orgIdentityid != null">org_identityId = #{orgIdentityid},</if>
+            <if test="orgState != null">org_state = #{orgState},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteZzTeacherinfoById" parameterType="Long">
+        delete from zz_teacherinfo where id = #{id}
+    </delete>
+
+    <delete id="deleteZzTeacherinfoByIds" parameterType="String">
+        delete from zz_teacherinfo where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <!--批量查找数据 -->
+    <select id="selectListByTeacherIds" parameterType="java.util.ArrayList" resultMap="ZzTeacherinfoResult">
+        <include refid="selectZzTeacherinfoVo"/>
+        <where>
+            user_id in (
+            <foreach collection="list"  item="userId" index="index" separator=",">
+                #{userId}
+            </foreach>
+            )
+        </where>
+    </select>
+
+    <!--批量插入数据 -->
+    <insert id="insertTeacherinfoList"  >
+
+        insert into zz_teacherinfo (id, user_id, user_no, user_name, mobile, mobileIsbind, email,
+        emailIsbind,user_head, state,person_name, piny_name, gender,
+        national, birthday, idcard, employ_id, org_id, org_name, org_identityId, org_state)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            ( #{item.id},#{item.userId},#{item.userNo},#{item.userName},#{item.mobile},#{item.mobileIsbind},
+            #{item.email},    #{item.emailIsbind},#{item.userHead},#{item.state},#{item.personName},
+            #{item.pinyName},#{item.gender}, #{item.national},#{item.birthday}, #{item.idcard},#{item.employId},
+            #{item.orgId},#{item.orgName},#{item.orgIdentityid},#{item.orgState})
+        </foreach>
+    </insert>
+
+    <!--批量更新数据 -->
+    <update id="updateTeacherinfoList" parameterType="java.util.List">
+        update zz_teacherinfo set
+        user_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userId,jdbcType=VARCHAR}
+        </foreach>
+        ,user_no =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userNo,jdbcType=VARCHAR}
+        </foreach>
+        ,user_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userName,jdbcType=VARCHAR}
+        </foreach>
+
+        ,mobile =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.mobile,jdbcType=VARCHAR}
+        </foreach>
+        ,email =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.email,jdbcType=VARCHAR}
+        </foreach>
+        ,emailIsbind =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.emailIsbind,jdbcType=VARCHAR}
+        </foreach>
+        ,mobileIsbind =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.mobileIsbind,jdbcType=VARCHAR}
+        </foreach>
+        ,user_head =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.userHead,jdbcType=VARCHAR}
+        </foreach>
+        ,state =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.state,jdbcType=VARCHAR}
+        </foreach>
+        ,person_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.personName,jdbcType=VARCHAR}
+        </foreach>
+        ,piny_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.pinyName,jdbcType=VARCHAR}
+        </foreach>
+        ,gender =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.gender,jdbcType=VARCHAR}
+        </foreach>
+        ,idcard =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.idcard,jdbcType=VARCHAR}
+        </foreach>
+
+        ,national =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.national,jdbcType=VARCHAR}
+        </foreach>
+        ,birthday =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.birthday,jdbcType=VARCHAR}
+        </foreach>
+        ,idcard =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.idcard,jdbcType=VARCHAR}
+        </foreach>
+        ,employ_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.employId,jdbcType=VARCHAR}
+        </foreach>
+        ,org_id =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.orgId,jdbcType=VARCHAR}
+        </foreach>
+        ,org_name =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.orgName,jdbcType=VARCHAR}
+        </foreach>
+        ,org_identityId =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.orgIdentityid,jdbcType=VARCHAR}
+        </foreach>
+        ,org_state =
+        <foreach collection="list" item="item" index="index" separator=" " open="case id" close="end">
+            when #{item.id,jdbcType=DECIMAL} then #{item.orgState,jdbcType=VARCHAR}
+        </foreach>
+
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=DECIMAL}
+        </foreach>
+    </update>
+</mapper>

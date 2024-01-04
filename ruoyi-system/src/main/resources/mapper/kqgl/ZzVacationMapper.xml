@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ZzVacationMapper">
+
+    <resultMap type="ZzVacation" id="ZzVacationResult">
+        <result property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="chuTime" column="chu_time"/>
+        <result property="huiTime" column="hui_time"/>
+        <result property="sqTime" column="sq_time"/>
+        <result property="pzTime" column="pz_time"/>
+        <result property="xjTime" column="xj_time"/>
+        <result property="pzTeacherId" column="pz_teacher_id"/>
+        <result property="pzTeacherName" column="pz_teacher_name"/>
+        <result property="sqStatus" column="sq_status"/>
+        <result property="qjStatus" column="qj_status"/>
+        <result property="status" column="status"/>
+
+        <result property="qjReason" column="qj_reason"/>
+        <result property="qjType" column="qj_type"/>
+        <result property="sqPeople" column="sq_people"/>
+    </resultMap>
+
+    <sql id="selectZzVacationVo">
+        select id, student_id, student_name, start_time, end_time, chu_time, hui_time, sq_time, pz_time, xj_time,
+         pz_teacher_id, pz_teacher_name, sq_status, qj_status, status,qj_reason,qj_type,sq_people from zz_vacation
+    </sql>
+
+    <select id="selectZzVacationList" parameterType="ZzVacation" resultMap="ZzVacationResult">
+        <include refid="selectZzVacationVo"/>
+        <where>
+            <if test="studentId != null  and studentId != ''">and student_id = #{studentId}</if>
+            <if test="studentName != null  and studentName != ''">and student_name like concat('%', #{studentName},'%')
+            </if>
+            <if test="startTime != null ">and start_time = #{startTime}</if>
+            <if test="endTime != null ">and end_time = #{endTime}</if>
+            <if test="chuTime != null ">and chu_time = #{chuTime}</if>
+            <if test="huiTime != null ">and hui_time = #{huiTime}</if>
+            <if test="sqTime != null ">and sq_time = #{sqTime}</if>
+            <if test="pzTime != null ">and pz_time = #{pzTime}</if>
+            <if test="xjTime != null ">and xj_time = #{xjTime}</if>
+            <if test="pzTeacherId != null  and pzTeacherId != ''">and pz_teacher_id = #{pzTeacherId}</if>
+            <if test="pzTeacherName != null  and pzTeacherName != ''">and pz_teacher_name like concat('%',
+                #{pzTeacherName}, '%')
+            </if>
+            <if test="sqStatus != null  and sqStatus != ''">and sq_status = #{sqStatus}</if>
+            <if test="qjStatus != null  and qjStatus != ''">and qj_status = #{qjStatus}</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="qjReason != null  and qjReason != ''">and qj_reason = #{qjReason}</if>
+            <if test="qjType != null  and qjType != ''">and qj_type = #{qjType}</if>
+            <if test="sqPeople != null  and sqPeople != ''">and sq_people = #{sqPeople}</if>
+        </where>
+    </select>
+
+    <!--         left join zz_classinfo c on c.class_id= s.classId-->
+
+    <select id="selectZzVacationListByTime" parameterType="ZzVacation" resultMap="ZzVacationResult">
+        select v.id, CONCAT(student_name, ',',student_id) as student_id,
+        CONCAT(c.grade_name, ',',c.class_nickname, ',',c.class_name) as student_name,
+        start_time, end_time, chu_time, hui_time,qj_reason,qj_type,sq_people,
+        sq_time, pz_time, xj_time, pz_teacher_id, pz_teacher_name, sq_status, qj_status, v.status from zz_vacation v
+        left join zz_studentinfo s on v.student_id = s.id
+        left join zz_classinfo c on c.class_id= s.classId
+        <where>
+            <if test="studentId != null  and studentId != ''">and student_id = #{studentId}</if>
+            <if test="studentName != null  and studentName != ''">and student_name like concat('%',#{studentName},'%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                and (start_time  BETWEEN  #{startTime} AND #{endTime}
+                or end_time  BETWEEN  #{startTime} AND #{endTime}
+                or ( #{startTime} >start_time and  end_time >  #{endTime} ))
+            </if>
+            <if test="sqStatus != null  and sqStatus != ''">and sq_status = #{sqStatus}</if>
+            <if test="qjStatus != null  and qjStatus != ''">and qj_status = #{qjStatus}</if>
+            <if test="status != null  and status != ''">and v.status = #{status}</if>
+            <if test="qjReason != null  and qjReason != ''">and qj_reason = #{qjReason}</if>
+            <if test="qjType != null  and qjType != ''">and qj_type = #{qjType}</if>
+            <if test="sqPeople != null  and sqPeople != ''">and sq_people = #{sqPeople}</if>
+            <if test="pzTeacherId != null  and pzTeacherId != ''">and pz_teacher_id = #{pzTeacherId}</if>
+            <if test="pzTeacherName != null  and pzTeacherName != ''">and pz_teacher_name like concat('%',#{pzTeacherName}, '%')
+            </if>
+            <if test="className != null  and className != ''">and c.class_nickname like concat('%',#{className}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectZzVacationList31" parameterType="ZzVacation" resultMap="ZzVacationResult">
+        <include refid="selectZzVacationVo"/>
+        <where>
+            <if test="studentId != null  and studentId != ''">and student_id = #{studentId}</if>
+            <if test="studentName != null  and studentName != ''">and student_name like concat('%', #{studentName},
+                '%')
+            </if>
+            <if test="startTime != null ">and start_time = #{startTime}</if>
+            <if test="endTime != null ">and end_time = #{endTime}</if>
+            <if test="chuTime != null ">and chu_time = #{chuTime}</if>
+            <if test="huiTime != null ">and hui_time = #{huiTime}</if>
+            <if test="sqTime != null ">and sq_time = #{sqTime}</if>
+            <if test="pzTime != null ">and pz_time = #{pzTime}</if>
+            <if test="xjTime != null ">and xj_time = #{xjTime}</if>
+            <if test="pzTeacherId != null  and pzTeacherId != ''">and pz_teacher_id = #{pzTeacherId}</if>
+            <if test="pzTeacherName != null  and pzTeacherName != ''">and pz_teacher_name like concat('%',
+                #{pzTeacherName}, '%')
+            </if>
+            <if test="sqStatus != null  and sqStatus != ''">and sq_status = #{sqStatus}</if>
+            <if test="qjStatus != null  and qjStatus != ''">and qj_status = #{qjStatus}</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+
+            <if test="qjReason != null  and qjReason != ''">and qj_reason = #{qjReason}</if>
+            <if test="qjType != null  and qjType != ''">and qj_type = #{qjType}</if>
+            <if test="sqPeople != null  and sqPeople != ''">and sq_people = #{sqPeople}</if>
+            and sq_time >= DATE_SUB(CURDATE(), INTERVAL 31 DAY);
+        </where>
+    </select>
+
+
+    <select id="selectZzVacationById" parameterType="Long" resultMap="ZzVacationResult">
+        <include refid="selectZzVacationVo"/>
+        where id = #{id}
+    </select>
+
+    <!--批量查找数据 -->
+    <select id="selectListByIdsAndSqTime" parameterType="java.util.Map" resultMap="ZzVacationResult">
+        <include refid="selectZzVacationVo"/>
+        <where>
+            student_id in (
+            <foreach collection="list" item="studentId" index="index" separator=",">
+                #{studentId}
+            </foreach>
+            )
+            and status = 1
+            <if test="sqStatus != null  and sqStatus != ''">and sq_status = #{sqStatus}</if>
+            <if test="startTime != null and endTime != null and startTime != '' and endTime != ''">
+                and (start_time  BETWEEN  #{startTime} AND #{endTime}
+                or end_time  BETWEEN  #{startTime} AND #{endTime}
+                or ( #{startTime} >start_time and  end_time >  #{endTime}   ))
+            </if>
+        </where>
+    </select>
+
+
+    <!--批量查找数据 -->
+    <select id="selectListByIds" parameterType="java.util.Map" resultMap="ZzVacationResult">
+        <include refid="selectZzVacationVo"/>
+        <where>
+            student_id in (
+            <foreach collection="list" item="studentId" index="index" separator=",">
+                #{studentId}
+            </foreach>
+            )
+            and status = 1
+            <if test="sqStatus != null  and sqStatus != ''">and sq_status = #{sqStatus}</if>
+            <if test="qjStatus1 != null  and qjStatus1 != ''">
+                and (qj_status = #{qjStatus1} or qj_status = #{qjStatus2} or qj_status = #{qjStatus3})
+            </if>
+            <if test="sqTime != null  and sqTime != ''">and #{sqTime} BETWEEN trim(date(start_time)) AND
+                trim(date(end_time))
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insertZzVacation" parameterType="ZzVacation" useGeneratedKeys="true" keyProperty="id">
+        insert into zz_vacation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="studentId != null">student_id,</if>
+            <if test="studentName != null">student_name,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="chuTime != null">chu_time,</if>
+            <if test="huiTime != null">hui_time,</if>
+            <if test="sqTime != null">sq_time,</if>
+            <if test="pzTime != null">pz_time,</if>
+            <if test="xjTime != null">xj_time,</if>
+            <if test="pzTeacherId != null">pz_teacher_id,</if>
+            <if test="pzTeacherName != null">pz_teacher_name,</if>
+            <if test="sqStatus != null">sq_status,</if>
+            <if test="qjStatus != null">qj_status,</if>
+            <if test="status != null">status,</if>
+            <if test="qjReason != null  ">qj_reason ,</if>
+            <if test="qjType != null ">qj_type,</if>
+            <if test="sqPeople != null ">sq_people ,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="studentId != null">#{studentId},</if>
+            <if test="studentName != null">#{studentName},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="chuTime != null">#{chuTime},</if>
+            <if test="huiTime != null">#{huiTime},</if>
+            <if test="sqTime != null">#{sqTime},</if>
+            <if test="pzTime != null">#{pzTime},</if>
+            <if test="xjTime != null">#{xjTime},</if>
+            <if test="pzTeacherId != null">#{pzTeacherId},</if>
+            <if test="pzTeacherName != null">#{pzTeacherName},</if>
+            <if test="sqStatus != null">#{sqStatus},</if>
+            <if test="qjStatus != null">#{qjStatus},</if>
+            <if test="status != null">#{status},</if>
+            <if test="qjReason != null ">#{qjReason},</if>
+            <if test="qjType != null  ">#{qjType},</if>
+            <if test="sqPeople != null  ">#{sqPeople},</if>
+        </trim>
+    </insert>
+
+    <update id="updateZzVacation" parameterType="ZzVacation">
+        update zz_vacation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="studentName != null">student_name = #{studentName},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="chuTime != null">chu_time = #{chuTime},</if>
+            <if test="huiTime != null">hui_time = #{huiTime},</if>
+            <if test="sqTime != null">sq_time = #{sqTime},</if>
+            <if test="pzTime != null">pz_time = #{pzTime},</if>
+            <if test="xjTime != null">xj_time = #{xjTime},</if>
+            <if test="pzTeacherId != null">pz_teacher_id = #{pzTeacherId},</if>
+            <if test="pzTeacherName != null">pz_teacher_name = #{pzTeacherName},</if>
+            <if test="sqStatus != null">sq_status = #{sqStatus},</if>
+            <if test="qjStatus != null">qj_status = #{qjStatus},</if>
+            <if test="status != null">status = #{status},</if>
+
+            <if test="qjReason != null  ">qj_reason = #{qjReason},</if>
+            <if test="qjType != null ">qj_type = #{qjType},</if>
+            <if test="sqPeople != null ">sq_people = #{sqPeople},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteZzVacationById" parameterType="Long">
+        delete from zz_vacation where id = #{id}
+    </delete>
+
+    <delete id="deleteZzVacationByIds" parameterType="String">
+        delete from zz_vacation where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
